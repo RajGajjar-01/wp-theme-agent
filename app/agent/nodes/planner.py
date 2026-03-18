@@ -1,6 +1,8 @@
 import json
 import logging
 
+from langgraph.config import get_stream_writer
+
 from app.agent.clients import GLM_MODEL, glm_client
 from app.agent.llm_utils import llm_parse_list
 from app.agent.models import GlobalAnalysis, PageAnalysis, PlanItem
@@ -32,7 +34,8 @@ def _build_planner_context(
     )
 
 
-async def planner_node(state: AgentState, writer) -> dict:
+async def planner_node(state: AgentState) -> dict:
+    writer = get_stream_writer()
     global_analysis: GlobalAnalysis = state["global_analysis"]
     pages: list[PageAnalysis] = state["pages"]
     errors: list[str] = list(state.get("errors", []))

@@ -1,6 +1,8 @@
 import json
 import logging
 
+from langgraph.config import get_stream_writer
+
 from app.agent.clients import GLM_MODEL, glm_client
 from app.agent.llm_utils import llm_parse
 from app.agent.models import GlobalAnalysis, PageAnalysis
@@ -17,7 +19,8 @@ def _build_files_context(uploaded_files: dict[str, str]) -> str:
     return "\n".join(parts)
 
 
-async def analyzer_node(state: AgentState, writer) -> dict:
+async def analyzer_node(state: AgentState) -> dict:
+    writer = get_stream_writer()
     uploaded_files = state["uploaded_files"]
     errors: list[str] = list(state.get("errors", []))
 
