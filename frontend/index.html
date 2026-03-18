@@ -1,12 +1,530 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WP Theme Agent</title>
+    <title>WP Theme Agent — HTML to WordPress Converter</title>
+    <meta name="description" content="Convert your HTML, CSS, and JS files into a production-ready WordPress theme using AI.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        border: 'hsl(240 3.7% 15.9%)',
+                        input: 'hsl(240 3.7% 15.9%)',
+                        ring: 'hsl(240 4.9% 83.9%)',
+                        background: 'hsl(240 10% 3.9%)',
+                        foreground: 'hsl(0 0% 98%)',
+                        primary: { DEFAULT: 'hsl(0 0% 98%)', foreground: 'hsl(240 5.9% 10%)' },
+                        secondary: { DEFAULT: 'hsl(240 3.7% 15.9%)', foreground: 'hsl(0 0% 98%)' },
+                        muted: { DEFAULT: 'hsl(240 3.7% 15.9%)', foreground: 'hsl(240 5% 64.9%)' },
+                        accent: { DEFAULT: 'hsl(240 3.7% 15.9%)', foreground: 'hsl(0 0% 98%)' },
+                        destructive: { DEFAULT: 'hsl(0 62.8% 30.6%)', foreground: 'hsl(0 0% 98%)' },
+                        card: { DEFAULT: 'hsl(240 10% 3.9%)', foreground: 'hsl(0 0% 98%)' },
+                        popover: { DEFAULT: 'hsl(240 10% 3.9%)', foreground: 'hsl(0 0% 98%)' },
+                        success: 'hsl(142 76% 36%)',
+                        warning: 'hsl(38 92% 50%)',
+                    },
+                    borderRadius: { lg: '0.5rem', md: 'calc(0.5rem - 2px)', sm: 'calc(0.5rem - 4px)' },
+                    keyframes: {
+                        'pulse-dot': { '0%, 100%': { opacity: 1 }, '50%': { opacity: 0.3 } },
+                        'slide-in': { from: { opacity: 0, transform: 'translateY(4px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
+                        'fade-in': { from: { opacity: 0 }, to: { opacity: 1 } },
+                        'spin-slow': { from: { transform: 'rotate(0deg)' }, to: { transform: 'rotate(360deg)' } },
+                    },
+                    animation: {
+                        'pulse-dot': 'pulse-dot 1.5s ease-in-out infinite',
+                        'slide-in': 'slide-in 0.2s ease-out',
+                        'fade-in': 'fade-in 0.3s ease-out',
+                        'spin-slow': 'spin-slow 2s linear infinite',
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body { background: hsl(240 10% 3.9%); color: hsl(0 0% 98%); display: flex; flex-direction: column; min-height: 100vh; }
+        main { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        main.has-content { justify-content: flex-start; }
+        input:focus, textarea:focus { outline: none; box-shadow: 0 0 0 2px hsl(240 4.9% 83.9% / 0.3); }
+        input[type="file"] { font-size: 0; }
+        .log-entry { animation: slide-in 0.2s ease-out; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: hsl(240 3.7% 25%); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: hsl(240 3.7% 35%); }
+        .drop-zone-active { border-color: hsl(0 0% 98%) !important; background: hsl(240 3.7% 15.9% / 0.5) !important; }
+    </style>
 </head>
-<body>
-    <h1>WP Theme Agent</h1>
-    <p>Frontend will be built in Step 7.</p>
+<body class="min-h-screen font-sans antialiased">
+
+    <!-- Header -->
+    <header class="border-b border-border">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
+                    <svg class="w-4 h-4 text-background" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <h1 class="text-lg font-semibold tracking-tight">WP Theme Agent</h1>
+            </div>
+            <span class="text-xs text-muted-foreground border border-border rounded-full px-2.5 py-0.5">v0.1.0</span>
+        </div>
+    </header>
+
+    <main id="main-content" class="max-w-5xl mx-auto px-6 py-10 w-full">
+
+        <!-- Step 1: Upload -->
+        <section id="step-upload" class="animate-fade-in">
+            <div class="space-y-1.5 mb-6">
+                <h2 class="text-2xl font-semibold tracking-tight">Upload your website files</h2>
+                <p class="text-sm text-muted-foreground">Drag and drop your HTML, CSS, and JS files to convert them into a WordPress theme.</p>
+            </div>
+
+            <div id="drop-zone" onclick="document.getElementById('file-input').click()"
+                 class="relative border-2 border-dashed border-border rounded-lg p-16 md:p-20 text-center cursor-pointer transition-all duration-200 hover:border-muted-foreground/50 hover:bg-secondary/30">
+                <input type="file" id="file-input" multiple accept=".html,.css,.js" class="hidden" webkitdirectory>
+                <div class="flex flex-col items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center">
+                        <svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium">Click to upload or drag and drop</p>
+                        <p class="text-xs text-muted-foreground mt-1">HTML, CSS, and JS files • Folder upload supported</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File List -->
+            <div id="file-list" class="mt-4 hidden">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-medium" id="file-count">0 files selected</h3>
+                    <button id="clear-files" class="text-xs text-muted-foreground hover:text-foreground transition-colors">Clear all</button>
+                </div>
+                <div id="file-items" class="space-y-1 max-h-48 overflow-y-auto rounded-md border border-border p-2"></div>
+            </div>
+        </section>
+
+        <!-- Step 2: Configure -->
+        <section id="step-config" class="mt-10 hidden animate-fade-in">
+            <div class="space-y-1.5 mb-6">
+                <h2 class="text-2xl font-semibold tracking-tight">Configure your theme</h2>
+                <p class="text-sm text-muted-foreground">Set the name, slug, and author for your WordPress theme.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="space-y-2">
+                    <label for="theme-name" class="text-sm font-medium">Theme Name</label>
+                    <input type="text" id="theme-name" placeholder="My Starter Theme"
+                           class="w-full h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors">
+                </div>
+                <div class="space-y-2">
+                    <label for="theme-slug" class="text-sm font-medium">Theme Slug</label>
+                    <input type="text" id="theme-slug" placeholder="my-starter-theme"
+                           class="w-full h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors">
+                </div>
+                <div class="space-y-2">
+                    <label for="theme-author" class="text-sm font-medium">Author</label>
+                    <input type="text" id="theme-author" placeholder="Your Name"
+                           class="w-full h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors">
+                </div>
+            </div>
+
+            <button id="btn-convert"
+                    class="mt-6 inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-6 bg-primary text-primary-foreground shadow hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:pointer-events-none">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
+                Convert to WordPress Theme
+            </button>
+        </section>
+
+        <!-- Step 3: Progress -->
+        <section id="step-progress" class="mt-10 hidden animate-fade-in">
+            <div class="space-y-1.5 mb-6">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-2xl font-semibold tracking-tight">Converting</h2>
+                    <div id="progress-spinner" class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 rounded-full bg-foreground animate-pulse-dot"></div>
+                        <div class="w-2 h-2 rounded-full bg-foreground animate-pulse-dot" style="animation-delay: 0.3s"></div>
+                        <div class="w-2 h-2 rounded-full bg-foreground animate-pulse-dot" style="animation-delay: 0.6s"></div>
+                    </div>
+                </div>
+                <p class="text-sm text-muted-foreground">Your files are being analyzed and converted into a WordPress theme.</p>
+            </div>
+
+            <!-- Pipeline Steps -->
+            <div id="pipeline-steps" class="space-y-1.5 mb-6">
+                <div class="flex items-center gap-3 px-3 py-2 rounded-md" data-step="analyzer">
+                    <div class="step-icon w-5 h-5 rounded-full border border-border flex items-center justify-center flex-shrink-0">
+                        <span class="text-[10px] text-muted-foreground">1</span>
+                    </div>
+                    <span class="text-sm text-muted-foreground">Analyze</span>
+                </div>
+                <div class="flex items-center gap-3 px-3 py-2 rounded-md" data-step="planner">
+                    <div class="step-icon w-5 h-5 rounded-full border border-border flex items-center justify-center flex-shrink-0">
+                        <span class="text-[10px] text-muted-foreground">2</span>
+                    </div>
+                    <span class="text-sm text-muted-foreground">Plan</span>
+                </div>
+                <div class="flex items-center gap-3 px-3 py-2 rounded-md" data-step="generator">
+                    <div class="step-icon w-5 h-5 rounded-full border border-border flex items-center justify-center flex-shrink-0">
+                        <span class="text-[10px] text-muted-foreground">3</span>
+                    </div>
+                    <span class="text-sm text-muted-foreground">Generate</span>
+                </div>
+                <div class="flex items-center gap-3 px-3 py-2 rounded-md" data-step="validator">
+                    <div class="step-icon w-5 h-5 rounded-full border border-border flex items-center justify-center flex-shrink-0">
+                        <span class="text-[10px] text-muted-foreground">4</span>
+                    </div>
+                    <span class="text-sm text-muted-foreground">Validate</span>
+                </div>
+                <div class="flex items-center gap-3 px-3 py-2 rounded-md" data-step="writer">
+                    <div class="step-icon w-5 h-5 rounded-full border border-border flex items-center justify-center flex-shrink-0">
+                        <span class="text-[10px] text-muted-foreground">5</span>
+                    </div>
+                    <span class="text-sm text-muted-foreground">Write &amp; Package</span>
+                </div>
+            </div>
+
+            <!-- Log Console -->
+            <div class="rounded-lg border border-border bg-card">
+                <div class="flex items-center justify-between px-4 py-2.5 border-b border-border">
+                    <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Event Log</span>
+                    <span id="event-count" class="text-xs text-muted-foreground">0 events</span>
+                </div>
+                <div id="log-container" class="p-3 space-y-0.5 max-h-72 overflow-y-auto font-mono text-xs"></div>
+            </div>
+        </section>
+
+        <!-- Step 4: Complete -->
+        <section id="step-complete" class="mt-10 hidden animate-fade-in">
+            <div class="rounded-lg border border-border bg-card p-8 text-center">
+                <div class="w-14 h-14 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-7 h-7 text-success" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                </div>
+                <h2 class="text-2xl font-semibold tracking-tight mb-2">Theme Ready!</h2>
+                <p class="text-sm text-muted-foreground mb-6">Your WordPress theme has been generated, validated, and packaged.</p>
+
+                <div class="flex items-center justify-center gap-3">
+                    <a id="btn-download" href="#"
+                       class="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-6 bg-primary text-primary-foreground shadow hover:bg-primary/90 transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                        Download ZIP
+                    </a>
+                    <button id="btn-restart"
+                            class="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-6 border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+                        Start Over
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error Section -->
+        <section id="step-error" class="mt-10 hidden animate-fade-in">
+            <div class="rounded-lg border border-destructive/50 bg-destructive/5 p-6 text-center">
+                <div class="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+                </div>
+                <h2 class="text-lg font-semibold mb-1">Conversion Failed</h2>
+                <p id="error-message" class="text-sm text-muted-foreground"></p>
+                <button id="btn-retry"
+                        class="mt-4 inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 border border-input bg-background hover:bg-accent transition-colors">
+                    Try Again
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-border mt-20">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between text-xs text-muted-foreground">
+            <span>Built with LangGraph + FastAPI</span>
+            <span>AI-Powered WordPress Theme Conversion</span>
+        </div>
+    </footer>
+
+    <script>
+    const API = '/api';
+    let sessionId = null;
+    let uploadedFiles = [];
+    let eventCount = 0;
+
+    // ── DOM Refs ────────────────────────────────────────────────────────────
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const fileList = document.getElementById('file-list');
+    const fileItems = document.getElementById('file-items');
+    const fileCountEl = document.getElementById('file-count');
+    const clearFilesBtn = document.getElementById('clear-files');
+    const stepConfig = document.getElementById('step-config');
+    const stepProgress = document.getElementById('step-progress');
+    const stepComplete = document.getElementById('step-complete');
+    const stepError = document.getElementById('step-error');
+    const btnConvert = document.getElementById('btn-convert');
+    const btnDownload = document.getElementById('btn-download');
+    const btnRestart = document.getElementById('btn-restart');
+    const btnRetry = document.getElementById('btn-retry');
+    const logContainer = document.getElementById('log-container');
+    const eventCountEl = document.getElementById('event-count');
+    const errorMessage = document.getElementById('error-message');
+    const progressSpinner = document.getElementById('progress-spinner');
+    const mainContent = document.getElementById('main-content');
+
+    // ── File Upload ────────────────────────────────────────────────────────
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drop-zone-active'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone-active'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('drop-zone-active');
+        handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+    function handleFiles(files) {
+        const allowed = ['.html', '.css', '.js'];
+        const newFiles = Array.from(files).filter(f => allowed.some(ext => f.name.toLowerCase().endsWith(ext)));
+        if (!newFiles.length) return;
+        uploadedFiles = [...uploadedFiles, ...newFiles];
+        renderFileList();
+        stepConfig.classList.remove('hidden');
+        mainContent.classList.add('has-content');
+    }
+
+    function renderFileList() {
+        fileList.classList.remove('hidden');
+        fileCountEl.textContent = `${uploadedFiles.length} file${uploadedFiles.length !== 1 ? 's' : ''} selected`;
+
+        const icons = {
+            '.html': '<svg class="w-3.5 h-3.5 text-orange-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 18.178l-4.62-1.256-.328-3.544h2.27l.158 1.844 2.52.683 2.518-.682.326-3.62H7.12l-.33-3.48h10.476l-.136 1.45-.33 3.63-.108 1.154L12 18.178zM3 2h18l-1.623 18L12 22l-7.377-2L3 2z"/></svg>',
+            '.css': '<svg class="w-3.5 h-3.5 text-blue-400" viewBox="0 0 24 24" fill="currentColor"><path d="M3 2h18l-1.623 18L12 22l-7.377-2L3 2zm3.356 5.07l.218 2.428h7.852l-.218 2.584-3.208.86-3.208-.86-.144-1.57H5.22l.29 3.212L12 15.856l6.49-2.132.89-9.654H6.356z"/></svg>',
+            '.js': '<svg class="w-3.5 h-3.5 text-yellow-400" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm4.73 15.04c.4.85 1.19 1.55 2.54 1.55 1.5 0 2.53-.79 2.53-2.4V11h-1.7v6.13c0 .8-.31 1.01-.81 1.01-.5 0-.71-.34-.94-.76l-1.62 1.66zm5.55-.35c.5.98 1.51 1.73 3.09 1.73 1.6 0 2.8-.83 2.8-2.36 0-1.41-.81-2.04-2.25-2.66l-.42-.18c-.73-.31-1.04-.52-1.04-1.02 0-.41.31-.73.81-.73.49 0 .8.21 1.09.73l1.31-.84c-.55-.98-1.32-1.35-2.4-1.35-1.51 0-2.48.96-2.48 2.23 0 1.38.81 2.03 2.03 2.55l.42.18c.78.34 1.24.55 1.24 1.13 0 .48-.45.83-1.15.83-.83 0-1.31-.43-1.67-1.03l-1.38.8z"/></svg>',
+        };
+
+        fileItems.innerHTML = uploadedFiles.map((f, i) => {
+            const ext = '.' + f.name.split('.').pop().toLowerCase();
+            const icon = icons[ext] || '';
+            const size = f.size < 1024 ? `${f.size} B` : `${(f.size/1024).toFixed(1)} KB`;
+            return `<div class="flex items-center justify-between px-2.5 py-1.5 rounded-md hover:bg-secondary/50 transition-colors group">
+                <div class="flex items-center gap-2.5">
+                    ${icon}
+                    <span class="text-sm">${f.name}</span>
+                    <span class="text-xs text-muted-foreground">${size}</span>
+                </div>
+                <button onclick="removeFile(${i})" class="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>`;
+        }).join('');
+    }
+
+    function removeFile(index) {
+        uploadedFiles.splice(index, 1);
+        if (!uploadedFiles.length) {
+            fileList.classList.add('hidden');
+            stepConfig.classList.add('hidden');
+        }
+        renderFileList();
+    }
+
+    clearFilesBtn.addEventListener('click', () => {
+        uploadedFiles = [];
+        fileList.classList.add('hidden');
+        stepConfig.classList.add('hidden');
+        fileInput.value = '';
+        mainContent.classList.remove('has-content');
+    });
+
+    // ── Auto-generate slug from name ───────────────────────────────────────
+    document.getElementById('theme-name').addEventListener('input', e => {
+        const slug = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        document.getElementById('theme-slug').value = slug;
+    });
+
+    // ── Convert ────────────────────────────────────────────────────────────
+    btnConvert.addEventListener('click', async () => {
+        const name = document.getElementById('theme-name').value.trim();
+        const slug = document.getElementById('theme-slug').value.trim();
+        const author = document.getElementById('theme-author').value.trim();
+
+        if (!name || !slug || !author) {
+            alert('Please fill in all theme fields.');
+            return;
+        }
+
+        if (!uploadedFiles.length) {
+            alert('Please upload some files first.');
+            return;
+        }
+
+        btnConvert.disabled = true;
+        btnConvert.innerHTML = `<svg class="w-4 h-4 mr-2 animate-spin-slow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 0115 0"/></svg>Uploading...`;
+
+        // 1. Upload files
+        const formData = new FormData();
+        uploadedFiles.forEach(f => formData.append('files', f));
+
+        try {
+            const uploadResp = await fetch(`${API}/upload`, { method: 'POST', body: formData });
+            if (!uploadResp.ok) {
+                const err = await uploadResp.json();
+                throw new Error(err.detail || 'Upload failed');
+            }
+            const uploadData = await uploadResp.json();
+            sessionId = uploadData.session_id;
+
+            addLog('system', 'running', `Uploaded ${uploadData.file_count} file(s) — session ${sessionId.slice(0, 8)}…`);
+
+            // 2. Show progress
+            stepProgress.classList.remove('hidden');
+
+            // 3. Start SSE stream
+            btnConvert.innerHTML = `<svg class="w-4 h-4 mr-2 animate-spin-slow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 0115 0"/></svg>Converting...`;
+
+            const convertResp = await fetch(`${API}/convert`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: sessionId, theme_name: name, theme_slug: slug, author }),
+            });
+
+            if (!convertResp.ok) {
+                const err = await convertResp.json();
+                throw new Error(err.detail || 'Conversion failed');
+            }
+
+            const reader = convertResp.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop();
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const event = JSON.parse(line.slice(6));
+                            handleSSEEvent(event);
+                        } catch {}
+                    }
+                }
+            }
+
+            // Process remaining buffer
+            if (buffer.startsWith('data: ')) {
+                try { handleSSEEvent(JSON.parse(buffer.slice(6))); } catch {}
+            }
+
+        } catch (err) {
+            showError(err.message);
+        }
+    });
+
+    function handleSSEEvent(event) {
+        const { node, status, message, zip_url } = event;
+
+        addLog(node, status, message);
+        updatePipelineStep(node, status);
+
+        if (node === 'pipeline' && status === 'done') {
+            showComplete(zip_url || `/api/download/${sessionId}`);
+        } else if (node === 'pipeline' && status === 'error') {
+            showError(message);
+        }
+    }
+
+    function addLog(node, status, message) {
+        eventCount++;
+        eventCountEl.textContent = `${eventCount} event${eventCount !== 1 ? 's' : ''}`;
+
+        const colors = {
+            running: 'text-blue-400',
+            complete: 'text-emerald-400',
+            passed: 'text-emerald-400',
+            warning: 'text-amber-400',
+            failed: 'text-red-400',
+            error: 'text-red-400',
+            done: 'text-emerald-400',
+        };
+
+        const statusIcons = {
+            running: '○',
+            complete: '●',
+            passed: '✓',
+            warning: '△',
+            failed: '✗',
+            error: '✗',
+            done: '●',
+        };
+
+        const color = colors[status] || 'text-muted-foreground';
+        const icon = statusIcons[status] || '·';
+
+        const el = document.createElement('div');
+        el.className = 'log-entry flex items-start gap-2 py-0.5';
+        el.innerHTML = `
+            <span class="text-muted-foreground select-none w-14 flex-shrink-0 text-right">${new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+            <span class="${color} flex-shrink-0">${icon}</span>
+            <span class="text-muted-foreground flex-shrink-0 w-20">[${node}]</span>
+            <span class="text-foreground/80">${message || ''}</span>
+        `;
+        logContainer.appendChild(el);
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function updatePipelineStep(node, status) {
+        const stepEl = document.querySelector(`[data-step="${node}"]`);
+        if (!stepEl) return;
+
+        const iconEl = stepEl.querySelector('.step-icon');
+        const labelEl = stepEl.querySelector('span:last-child');
+
+        if (status === 'running') {
+            stepEl.classList.add('bg-secondary/50');
+            iconEl.innerHTML = `<svg class="w-3.5 h-3.5 text-foreground animate-spin-slow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 0115 0"/></svg>`;
+            iconEl.classList.remove('border-border');
+            iconEl.classList.add('border-foreground');
+            labelEl.classList.remove('text-muted-foreground');
+            labelEl.classList.add('text-foreground');
+        } else if (status === 'complete' || status === 'done') {
+            stepEl.classList.remove('bg-secondary/50');
+            iconEl.innerHTML = `<svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>`;
+            iconEl.classList.remove('border-foreground');
+            iconEl.classList.add('border-emerald-400');
+            labelEl.classList.remove('text-foreground');
+            labelEl.classList.add('text-emerald-400');
+        }
+    }
+
+    function showComplete(zipUrl) {
+        progressSpinner.classList.add('hidden');
+        stepComplete.classList.remove('hidden');
+        btnDownload.href = zipUrl;
+        btnConvert.classList.add('hidden');
+    }
+
+    function showError(msg) {
+        progressSpinner.classList.add('hidden');
+        stepError.classList.remove('hidden');
+        errorMessage.textContent = msg;
+        btnConvert.disabled = false;
+        btnConvert.innerHTML = `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>Convert to WordPress Theme`;
+    }
+
+    btnRestart.addEventListener('click', () => location.reload());
+    btnRetry.addEventListener('click', () => {
+        stepError.classList.add('hidden');
+        btnConvert.disabled = false;
+        btnConvert.innerHTML = `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>Convert to WordPress Theme`;
+    });
+    </script>
 </body>
 </html>
