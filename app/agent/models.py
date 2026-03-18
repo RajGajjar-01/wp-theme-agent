@@ -55,6 +55,7 @@ class PageAnalysis(BaseModel):
 
 class PlanItem(BaseModel):
     file: str                   # relative path in theme, e.g. "template-parts/hero.php"
+    action: str = "create"      # "modify" (existing _s file) or "create" (new file)
     source: str                 # which HTML file or "global" | "css_files" | "generated" | "pages"
     type: str                   # php | css | js | xml
     description: str = ""

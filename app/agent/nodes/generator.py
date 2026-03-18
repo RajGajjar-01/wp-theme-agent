@@ -1,6 +1,8 @@
+import asyncio
 import json
 import logging
 import re
+from pathlib import Path
 
 from langgraph.config import get_stream_writer
 
@@ -91,10 +93,18 @@ def _strip_fences(text: str) -> str:
 
 async def generator_node(state: AgentState) -> dict:
     writer = get_stream_writer()
-    plan: list[PlanItem] = state["plan"]
+    # LangGraph serializes Pydantic models to dicts - re-validate them
+    plan: list[PlanItem] = [
+        PlanItem(**p) if isinstance(p, dict) else p for p in state["plan"]
+    ]
     uploaded_files = state["uploaded_files"]
-    global_analysis: GlobalAnalysis = state["global_analysis"]
-    pages: list[PageAnalysis] = state["pages"]
+    global_analysis_raw = state["global_analysis"]
+    global_analysis: GlobalAnalysis = (
+        GlobalAnalysis(**global_analysis_raw) if isinstance(global_analysis_raw, dict) else global_analysis_raw
+    )
+    pages: list[PageAnalysis] = [
+        PageAnalysis(**p) if isinstance(p, dict) else p for p in state["pages"]
+    ]
     errors: list[str] = list(state.get("errors", []))
 
     theme_name = state["theme_name"]
@@ -114,7 +124,7 @@ async def generator_node(state: AgentState) -> dict:
     generated_files: dict[str, str] = dict(state.get("generated_files", {}))
     total = len(plan)
 
-    for i, item in enumerate(plan, 1):
+    async def _generate_single_file(item: PlanItem, i: int) -> tuple[str, str] | None:
         writer({"node": "generator", "status": "running", "message": f"Generating {item.file} ({i}/{total})..."})
 
         source_html = _build_source_html(item, uploaded_files, global_analysis)
@@ -124,9 +134,21 @@ async def generator_node(state: AgentState) -> dict:
         if item.file == "pages.xml":
             source_html = f"Pages to create:\n{pages_context}"
 
+        base_file_content = "Not applicable (create action or base file missing)."
+        if item.action == "modify":
+            base_path = Path("app/agent/base_theme") / item.file
+            if base_path.is_file():
+                try:
+                    with open(base_path, "r", encoding="utf-8") as bf:
+                        base_file_content = bf.read()
+                except Exception as e:
+                    logger.warning("Could not read base file %s: %s", item.file, e)
+
         prompt = GENERATOR_SYSTEM.format(
             file_path=item.file,
             file_type=item.type,
+            action=item.action,
+            base_file_content=base_file_content,
             source_html=source_html,
             theme_name=theme_name,
             theme_slug=theme_slug,
@@ -151,11 +173,19 @@ async def generator_node(state: AgentState) -> dict:
             )
             content = resp.choices[0].message.content or ""
             content = _strip_fences(content)
-            generated_files[item.file] = content
+            return item.file, content
         except Exception as e:
             logger.error("Generation failed for %s: %s", item.file, e)
             errors.append(f"Generation failed for {item.file}: {e}")
-            generated_files[item.file] = f"<!-- Generation failed: {e} -->"
+            return item.file, f"<!-- Generation failed: {e} -->"
+
+    gen_tasks = [_generate_single_file(item, i) for i, item in enumerate(plan, 1)]
+    gen_results = await asyncio.gather(*gen_tasks)
+    
+    for res in gen_results:
+        if res:
+            file_path, content = res
+            generated_files[file_path] = content
 
     writer({
         "node": "generator",

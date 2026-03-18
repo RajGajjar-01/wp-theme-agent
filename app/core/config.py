@@ -57,7 +57,7 @@ class Settings(BaseSettings):
     MAX_VALIDATOR_RETRIES: int = Field(default=3, ge=1, le=10)
 
     # ── CORS ────────────────────────────────────────────────────────────
-    CORS_ORIGINS: list[str] = ["*"]
+    CORS_ORIGINS: list[str] | str = ["*"]
 
     # ── Computed paths (resolved relative to project root) ──────────────
     @computed_field  # type: ignore[prop-decorator]

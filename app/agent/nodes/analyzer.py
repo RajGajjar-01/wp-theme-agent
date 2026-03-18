@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 
@@ -25,7 +26,9 @@ async def analyzer_node(state: AgentState) -> dict:
     errors: list[str] = list(state.get("errors", []))
 
     html_files = {k: v for k, v in uploaded_files.items() if k.endswith(".html")}
-    all_context = _build_files_context(uploaded_files)
+    all_context = _build_files_context(html_files)
+
+    logger.info("Analyzer node started. Detected %d HTML files out of %d total files.", len(html_files), len(uploaded_files))
 
     writer({
         "node": "analyzer",
@@ -34,6 +37,7 @@ async def analyzer_node(state: AgentState) -> dict:
     })
 
     # --- Level 1: Global Analysis ---
+    logger.info("Starting Global Analysis to identify repeating components...")
     writer({"node": "analyzer", "status": "running", "message": "Running global analysis across all files..."})
 
     try:
@@ -52,48 +56,62 @@ async def analyzer_node(state: AgentState) -> dict:
         global_analysis = GlobalAnalysis(summary="Analysis failed — using defaults")
 
     components_count = len(global_analysis.repeating_components)
+    nav_count = len(global_analysis.shared_nav_items)
+    logger.info("Global Analysis completed. Found %d repeating components, %d navigation items.", components_count, nav_count)
     writer({
         "node": "analyzer",
         "status": "running",
-        "message": f"Found {components_count} repeating component(s), {len(global_analysis.shared_nav_items)} nav item(s)",
+        "message": f"Found {components_count} repeating component(s), {nav_count} nav item(s)",
     })
 
     # --- Level 2: Per-Page Analysis ---
     pages: list[PageAnalysis] = []
 
-    for filename in sorted(html_files.keys()):
-        writer({"node": "analyzer", "status": "running", "message": f"Analyzing {filename}..."})
+    semaphore = asyncio.Semaphore(1)
 
-        page_context = (
-            f"Filename: {filename}\n\n"
-            f"━━━ THIS PAGE HTML ━━━\n{html_files[filename]}\n\n"
-            f"━━━ KNOWN REPEATING COMPONENTS ━━━\n"
-            f"{json.dumps([c.model_dump() for c in global_analysis.repeating_components], indent=2)}"
-        )
-
-        try:
-            page = await llm_parse(
-                client=glm_client,
-                model=GLM_MODEL,
-                messages=[
-                    {"role": "system", "content": PAGE_ANALYSIS_SYSTEM},
-                    {"role": "user", "content": page_context},
-                ],
-                response_model=PageAnalysis,
+    async def _analyze_single_page(filename: str) -> PageAnalysis | None:
+        logger.info("Queueing Per-Page Analysis for: %s", filename)
+        async with semaphore:
+            await asyncio.sleep(2)  # Add a 2s delay between requests to respect strict API rate limits
+            logger.info("Started processing: %s", filename)
+            writer({"node": "analyzer", "status": "running", "message": f"Analyzing {filename}..."})
+    
+            page_context = (
+                f"Filename: {filename}\n\n"
+                f"━━━ THIS PAGE HTML ━━━\n{html_files[filename]}\n\n"
+                f"━━━ KNOWN REPEATING COMPONENTS ━━━\n"
+                f"{json.dumps([c.model_dump() for c in global_analysis.repeating_components], indent=2)}"
             )
-            page.source_file = filename
-            pages.append(page)
+    
+            try:
+                page = await llm_parse(
+                    client=glm_client,
+                    model=GLM_MODEL,
+                    messages=[
+                        {"role": "system", "content": PAGE_ANALYSIS_SYSTEM},
+                        {"role": "user", "content": page_context},
+                    ],
+                    response_model=PageAnalysis,
+                )
+                page.source_file = filename
+                logger.info("Completed analysis for '%s' -> Type: %s, Template: %s", filename, page.page_type, page.wp_template)
+                writer({
+                    "node": "analyzer",
+                    "status": "running",
+                    "message": f"  → {filename} → {page.page_type} ({page.wp_template})",
+                })
+                return page
+            except Exception as e:
+                logger.error("Page analysis failed for %s: %s", filename, e)
+                errors.append(f"Page analysis failed for {filename}: {e}")
+                return None
 
-            writer({
-                "node": "analyzer",
-                "status": "running",
-                "message": f"  → {filename} → {page.page_type} ({page.wp_template})",
-            })
-        except Exception as e:
-            logger.error("Page analysis failed for %s: %s", filename, e)
-            errors.append(f"Page analysis failed for {filename}: {e}")
+    page_tasks = [_analyze_single_page(fname) for fname in sorted(html_files.keys())]
+    page_results = await asyncio.gather(*page_tasks)
+    pages = [p for p in page_results if p is not None]
 
     page_summary = ", ".join(f"{p.source_file}→{p.wp_template}" for p in pages)
+    logger.info("Analyzer node completed successfully. Analyzed %d pages.", len(pages))
     writer({
         "node": "analyzer",
         "status": "complete",

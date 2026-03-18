@@ -36,8 +36,14 @@ def _build_planner_context(
 
 async def planner_node(state: AgentState) -> dict:
     writer = get_stream_writer()
-    global_analysis: GlobalAnalysis = state["global_analysis"]
-    pages: list[PageAnalysis] = state["pages"]
+    # LangGraph serializes Pydantic models to dicts - re-validate them
+    global_analysis_raw = state["global_analysis"]
+    global_analysis: GlobalAnalysis = (
+        GlobalAnalysis(**global_analysis_raw) if isinstance(global_analysis_raw, dict) else global_analysis_raw
+    )
+    pages: list[PageAnalysis] = [
+        PageAnalysis(**p) if isinstance(p, dict) else p for p in state["pages"]
+    ]
     errors: list[str] = list(state.get("errors", []))
 
     writer({"node": "planner", "status": "running", "message": "Planning WordPress file structure..."})

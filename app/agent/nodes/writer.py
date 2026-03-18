@@ -1,5 +1,6 @@
 import json
 import logging
+import shutil
 import zipfile
 from pathlib import Path
 
@@ -44,7 +45,10 @@ def _generate_pages_xml(pages: list[PageAnalysis], theme_name: str) -> str:
 async def writer_node(state: AgentState) -> dict:
     writer = get_stream_writer()
     generated_files: dict[str, str] = dict(state.get("generated_files", {}))
-    pages: list[PageAnalysis] = state.get("pages", [])
+    # LangGraph serializes Pydantic models to dicts - re-validate them
+    pages: list[PageAnalysis] = [
+        PageAnalysis(**p) if isinstance(p, dict) else p for p in state.get("pages", [])
+    ]
     errors: list[str] = list(state.get("errors", []))
 
     session_id = state["session_id"]
@@ -53,6 +57,15 @@ async def writer_node(state: AgentState) -> dict:
 
     output_dir: Path = settings.output_path / session_id / theme_slug
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    writer({"node": "writer", "status": "running", "message": f"Copying base _s theme..."})
+    base_theme_dir = Path("app/agent/base_theme")
+    if base_theme_dir.is_dir():
+        try:
+            shutil.copytree(base_theme_dir, output_dir, dirs_exist_ok=True)
+        except Exception as e:
+            logger.error("Failed to copy base theme: %s", e)
+            errors.append(f"Failed to copy base theme: {e}")
 
     writer({"node": "writer", "status": "running", "message": f"Writing {len(generated_files)} files to output/..."})
 
@@ -83,10 +96,12 @@ async def writer_node(state: AgentState) -> dict:
 
     try:
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-            for filepath in written_files:
-                full_path = output_dir / filepath
-                arcname = f"{theme_slug}/{filepath}"
-                zf.write(full_path, arcname)
+            # Add all files in the output directory to the ZIP
+            for root, _, files in output_dir.walk():
+                for file in files:
+                    full_path = root / file
+                    arcname = f"{theme_slug}/{full_path.relative_to(output_dir)}"
+                    zf.write(full_path, arcname)
 
         writer({"node": "writer", "status": "running", "message": f"ZIP created: {zip_path.name}"})
     except Exception as e:

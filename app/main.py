@@ -1,4 +1,7 @@
+import logging
 from pathlib import Path
+
+logging.basicConfig(level=logging.INFO)
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
