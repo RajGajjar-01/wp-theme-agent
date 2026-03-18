@@ -67,6 +67,7 @@ class ValidationResult(BaseModel):
 
 
 class DeployStatus(BaseModel):
-    method: str = "none"        # none | zip | filesystem | companion_plugin
+    method: str = "none"        # none | zip | skipped | rest_api
     success: bool = False
     message: str = ""
+    url: str | None = None
