@@ -53,7 +53,7 @@ def grep_workspace(pattern: str, workspace: Path, file_glob: str = "*") -> dict:
             continue
         try:
             content = filepath.read_text(encoding="utf-8")
-        except UnicodeDecodeError, PermissionError:
+        except (UnicodeDecodeError, PermissionError):
             continue
 
         file_matches = []

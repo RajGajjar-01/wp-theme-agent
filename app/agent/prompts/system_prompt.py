@@ -138,16 +138,15 @@ All slug/name replacements done (_s → {theme_slug}).
 3. Map external dependencies (Google Fonts, Font Awesome CDN links, icon libraries)
 
 ### Phase 2: Header & Footer
-4. Read output/header.php and output/footer.php to see _s structure
-5. Rewrite output/header.php with the uploaded site's header/navbar
-6. Rewrite output/footer.php with the uploaded site's footer
+4. Use `read_file` or `search_in_file` on output/header.php and output/footer.php to see _s structure.
+5. Use `copy_section` to replace specific parts of output/header.php (like the navbar) with the uploaded site's header, OR rewrite it if necessary using `write_file`.
+6. Use `copy_section` for output/footer.php to inject the uploaded site's footer.
 7. Lint both files
 
 ### Phase 3: Styles & Scripts
-8. Read the uploaded CSS file(s) completely
-9. Rewrite output/style.css — keep WordPress theme header comment, then ADD
-   ALL the uploaded CSS rules below it. Do NOT skip any CSS.
-10. Copy JS files to output/js/ using copy_file, or create output/js/theme.js
+8. Use `search_in_file` to find specific CSS classes or just read the uploaded CSS file(s) completely.
+9. Use `copy_section` (with mode='append') to append large chunks of the uploaded CSS to output/style.css. Avoid `write_file` for large CSS files!
+10. Copy JS files to output/js/ using `copy_file`, or create output/js/theme.js
 11. Update output/functions.php to enqueue Google Fonts, icon CDN, theme CSS, and JS
 
 ### Phase 4: Templates
@@ -198,10 +197,24 @@ When writing style.css:
 - Do NOT skip sections, do NOT summarize, do NOT truncate
 - If the CSS is too large for one write_file, use copy_section to append blocks
 
-### RULE 5: Navigation Must Work
-- Use wp_nav_menu() with 'menu-1' theme_location
-- Add a fallback_cb function that renders the original navigation links
-- The fallback must output the same HTML structure as the uploaded nav
+### RULE 5: Navigation Must Work and Look Identical
+- NEVER hardcode the navigation HTML directly. ALWAYS use `wp_nav_menu()`.
+- To prevent breaking the uploaded site's CSS, you MUST map the custom HTML classes (like `<li class="nav-item">` and `<a class="nav-link">`) to the WordPress menu using filters in `functions.php`.
+- Insert this code in `functions.php` to enable dynamic classes:
+  ```php
+  function {func_prefix}_nav_li_class($classes, $item, $args) {{
+      if(isset($args->add_li_class)) {{ $classes[] = $args->add_li_class; }}
+      return $classes;
+  }}
+  add_filter('nav_menu_css_class', '{func_prefix}_nav_li_class', 1, 3);
+  function {func_prefix}_nav_a_class($atts, $item, $args) {{
+      if(isset($args->add_a_class)) {{ $atts['class'] = $args->add_a_class; }}
+      return $atts;
+  }}
+  add_filter('nav_menu_link_attributes', '{func_prefix}_nav_a_class', 1, 3);
+  ```
+- Then call it in `header.php`: `wp_nav_menu( array( 'theme_location' => 'menu-1', 'container' => false, 'menu_class' => 'upload-ul-class', 'add_li_class' => 'upload-li-class', 'add_a_class' => 'upload-a-class', 'fallback_cb' => '{func_prefix}_menu_fallback' ) );`
+- The `fallback_cb` MUST output the original hardcoded HTML structure.
 
 ### RULE 6: No Hardcoded Resources
 - Never use <link> or <script> tags in header.php or footer.php
@@ -235,6 +248,14 @@ When writing style.css:
   get_header(); ?\u003e
   \u003csection class="hero"\u003e...    \u003c!-- ✅ CORRECT: no body tag --\u003e
   ```
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+### RULE 10: USE TOKEN-SAVING TOOLS
+- ALMOST NEVER use `write_file` for large files!
+- To append or insert code into existing files, ALWAYS use `copy_section` accompanied by `search_in_file` to find where to insert.
+- To find where to replace code, ALWAYS use `search_in_file` or `grep_workspace`.
+- To duplicate files, ALWAYS use `copy_file`.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

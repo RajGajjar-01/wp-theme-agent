@@ -33,10 +33,10 @@ client = OpenAI(
     api_key=os.getenv("FIREWORKS_API_KEY"),
     base_url="https://api.fireworks.ai/inference/v1",
     timeout=httpx.Timeout(
-        connect=30.0,  # 30s to establish connection
-        read=60.0,  # 60s max between data chunks during streaming
-        write=30.0,  # 30s for sending request
-        pool=30.0,  # 30s to acquire connection from pool
+        connect=60.0,  # 60s to establish connection
+        read=300.0,  # 300s max between data chunks during streaming
+        write=60.0,  # 60s for sending request
+        pool=60.0,  # 60s to acquire connection from pool
     ),
 )
 
@@ -420,10 +420,9 @@ def _stream_and_collect(messages, emit):
                 if choice.finish_reason:
                     finish_reason = choice.finish_reason
 
-                # Stream text content to UI as "thinking"
+                # Gather text content for message history (do not stream to UI)
                 if delta.content:
                     full_content += delta.content
-                    emit("agent", "running", extra={"thinking": delta.content})
 
                 # Accumulate tool call deltas
                 if delta.tool_calls:
@@ -446,6 +445,7 @@ def _stream_and_collect(messages, emit):
                                 tc["function"]["arguments"] += (
                                     tc_delta.function.arguments
                                 )
+                                emit("agent", "running", extra={"thinking": tc_delta.function.arguments})
 
             # Sort by index
             tool_calls = [tool_calls_map[idx] for idx in sorted(tool_calls_map.keys())]

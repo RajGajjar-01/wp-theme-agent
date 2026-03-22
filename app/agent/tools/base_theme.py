@@ -106,7 +106,7 @@ def seed_workspace_with_base_theme(
                 filepath.write_text(content, encoding="utf-8")
                 files_modified += 1
 
-        except UnicodeDecodeError, PermissionError:
+        except (UnicodeDecodeError, PermissionError):
             continue
 
     total_files = sum(1 for _ in output_dir.rglob("*") if _.is_file())

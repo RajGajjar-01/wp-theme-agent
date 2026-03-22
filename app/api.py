@@ -25,7 +25,7 @@ logging.basicConfig(
 logger = logging.getLogger("api")
 
 
-WORKSPACE_ROOT = Path("workspace/sessions")
+WORKSPACE_ROOT = Path("/home/rajgajjar04/Projects/wp-theme-workspace/sessions")
 WORKSPACE_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Text-based extensions the agent can read
