@@ -20,8 +20,8 @@ def resolve_base_theme(path: str) -> Path | None:
     return full
 
 
-def resolve_src(path: str, workspace: Path) -> Path | None:
-    """Resolve a source path (can be 'base_theme/...', 'uploads/...', or 'output/...')."""
+def resolve_src(path: str, workspace: Path, theme_slug: str = "output") -> Path | None:
+    """Resolve a source path (can be 'base_theme/...', 'uploads/...', or '{theme_slug}/...')."""
     if path.startswith("base_theme/"):
         relative = path[len("base_theme/") :]
         return resolve_base_theme(relative)

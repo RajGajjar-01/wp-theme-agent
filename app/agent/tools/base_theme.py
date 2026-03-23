@@ -47,7 +47,7 @@ def seed_workspace_with_base_theme(
             "error": "Base theme not found. Run scripts/download_s.sh first.",
         }
 
-    output_dir = workspace / "output"
+    output_dir = workspace / theme_slug
     if output_dir.exists():
         shutil.rmtree(output_dir)
 

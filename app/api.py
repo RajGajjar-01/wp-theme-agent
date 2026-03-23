@@ -31,7 +31,7 @@ WORKSPACE_ROOT.mkdir(parents=True, exist_ok=True)
 # Text-based extensions the agent can read
 TEXT_EXTS = {".html", ".htm", ".css", ".js", ".json", ".txt", ".md", ".svg", ".xml"}
 
-# Image/binary assets — copied verbatim to output/assets/
+# Image/binary assets — copied verbatim to theme-slug/assets/
 ASSET_EXTS = {
     ".png",
     ".jpg",
@@ -275,8 +275,8 @@ async def convert(req: ConvertRequest):
     def run_in_thread():
         workspace = session["workspace"]
         try:
-            # Copy binary assets into output/assets/ before agent starts
-            _seed_assets(session["asset_files"], workspace, emit)
+            # Copy binary assets into theme-slug/assets/ before agent starts
+            _seed_assets(session["asset_files"], workspace, emit, req.theme_slug)
 
             run_agent(
                 uploaded_files=session["uploaded_files"],
@@ -317,11 +317,13 @@ async def convert(req: ConvertRequest):
     )
 
 
-def _seed_assets(asset_files: dict[str, str], workspace: Path, emit) -> None:
-    """Copy uploaded binary assets (images, fonts) into output/assets/."""
+def _seed_assets(
+    asset_files: dict[str, str], workspace: Path, emit, theme_slug: str
+) -> None:
+    """Copy uploaded binary assets (images, fonts) into theme-slug/assets/."""
     if not asset_files:
         return
-    assets_out = workspace / "output" / "assets"
+    assets_out = workspace / theme_slug / "assets"
     assets_out.mkdir(parents=True, exist_ok=True)
     for rel_path, abs_src in asset_files.items():
         # Preserve subfolder structure inside assets/
@@ -330,11 +332,11 @@ def _seed_assets(asset_files: dict[str, str], workspace: Path, emit) -> None:
         dest = assets_out / subpath
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(abs_src, str(dest))
-        emit("agent", "complete", f"Copied asset: assets/{rel_path}")
+        emit("agent", "complete", f"Copied asset: {theme_slug}/assets/{rel_path}")
     emit(
         "agent",
         "complete",
-        f"Assets seeded: {len(asset_files)} file(s) → output/assets/",
+        f"Assets seeded: {len(asset_files)} file(s) → {theme_slug}/assets/",
     )
 
 
@@ -408,17 +410,11 @@ async def list_sessions():
 
 
 def _create_zip(workspace: Path, theme_slug: str) -> Path:
-    """Create a WordPress-ready ZIP structured with theme-slug/files."""
-    theme_output = workspace / "output"
-    zip_target = workspace / theme_slug
-
-    if zip_target.exists():
-        shutil.rmtree(zip_target)
-    shutil.copytree(str(theme_output), str(zip_target))
-
+    """Create a WordPress-ready ZIP with theme-slug as root folder."""
+    theme_output = workspace / theme_slug
     zip_path = workspace / f"{theme_slug}.zip"
     shutil.make_archive(
-        str(workspace / theme_slug),
+        str(zip_path.with_suffix("")),
         "zip",
         workspace,
         theme_slug,

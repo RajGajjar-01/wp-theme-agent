@@ -93,7 +93,7 @@ JS:   {", ".join(js_files) or "None"}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## Pre-Seeded Base Theme (already in output/)
+## Pre-Seeded Base Theme (already in {theme_slug}/)
 {base_listing}
 
 All slug/name replacements done (_s → {theme_slug}).
@@ -105,12 +105,12 @@ All slug/name replacements done (_s → {theme_slug}).
 ## Available Tools
 
 ### File Operations
-- **read_file(path)** — Read file ('uploads/...' or 'output/...')
-- **write_file(path, content)** — Write/overwrite file in output/
+- **read_file(path)** — Read file ('uploads/...' or '{theme_slug}/...')
+- **write_file(path, content)** — Write/overwrite file in {theme_slug}/
 - **list_files()** — List workspace files with sizes
 
 ### Smart Copy (TOKEN SAVING — prefer over write_file)
-- **copy_file(src, dest)** — Copy file directly. Source: 'base_theme/', 'uploads/', 'output/'
+- **copy_file(src, dest)** — Copy file directly. Source: 'base_theme/', 'uploads/', '{theme_slug}/'
 - **copy_section(src_file, dest_file, start_pattern, end_pattern, mode)** — Extract section
   between regex patterns. mode: 'append' or 'overwrite'.
 
@@ -128,7 +128,7 @@ All slug/name replacements done (_s → {theme_slug}).
 ### Completion
 - **task_complete(summary)** — Call when ALL work is done.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ## Workflow
 
@@ -138,16 +138,16 @@ All slug/name replacements done (_s → {theme_slug}).
 3. Map external dependencies (Google Fonts, Font Awesome CDN links, icon libraries)
 
 ### Phase 2: Header & Footer
-4. Use `read_file` or `search_in_file` on output/header.php and output/footer.php to see _s structure.
-5. Use `copy_section` to replace specific parts of output/header.php (like the navbar) with the uploaded site's header, OR rewrite it if necessary using `write_file`.
-6. Use `copy_section` for output/footer.php to inject the uploaded site's footer.
+4. Use `read_file` or `search_in_file` on {theme_slug}/header.php and {theme_slug}/footer.php to see _s structure.
+5. Use `copy_section` to replace specific parts of {theme_slug}/header.php (like the navbar) with the uploaded site's header, OR rewrite it if necessary using `write_file`.
+6. Use `copy_section` for {theme_slug}/footer.php to inject the uploaded site's footer.
 7. Lint both files
 
 ### Phase 3: Styles & Scripts
 8. Use `search_in_file` to find specific CSS classes or just read the uploaded CSS file(s) completely.
-9. Use `copy_section` (with mode='append') to append large chunks of the uploaded CSS to output/style.css. Avoid `write_file` for large CSS files!
-10. Copy JS files to output/js/ using `copy_file`, or create output/js/theme.js
-11. Update output/functions.php to enqueue Google Fonts, icon CDN, theme CSS, and JS
+9. Use `copy_section` (with mode='append') to append large chunks of the uploaded CSS to {theme_slug}/style.css. Avoid `write_file` for large CSS files!
+10. Copy JS files to {theme_slug}/js/ using `copy_file`, or create {theme_slug}/js/theme.js
+11. Update {theme_slug}/functions.php to enqueue Google Fonts, icon CDN, theme CSS, and JS
 
 ### Phase 4: Templates
 12. Create front-page.php (or page templates for multi-page sites)

@@ -4,6 +4,8 @@ from pathlib import Path
 
 from ._paths import resolve, resolve_src
 
+MAX_SECTION_SIZE = 100000  # 100KB limit
+
 
 def copy_file(src: str, dest: str, workspace: Path) -> dict:
     """Copy a file efficiently without needing to output its content."""
@@ -16,6 +18,9 @@ def copy_file(src: str, dest: str, workspace: Path) -> dict:
     dest_full = resolve(dest, workspace)
     if not dest_full:
         return {"ok": False, "error": f"Destination path blocked: {dest}"}
+
+    if src_full.resolve() == dest_full.resolve():
+        return {"ok": False, "error": "Source and destination are the same"}
 
     dest_full.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(str(src_full), str(dest_full))
@@ -52,17 +57,23 @@ def copy_section(
         if not start_match:
             return {"ok": False, "error": f"Start pattern not found: {start_pattern}"}
 
-        remaining = content[start_match.start() :]
-        end_match = re.search(end_pattern, remaining[len(start_match.group()) :])
+        search_from = start_match.end()
+        end_match = re.search(end_pattern, content[search_from:])
 
         if not end_match:
-            section = remaining
+            section = content[start_match.start() :]
         else:
-            end_pos = len(start_match.group()) + end_match.end()
-            section = remaining[:end_pos]
+            end_pos = search_from + end_match.end()
+            section = content[start_match.start() : end_pos]
 
     except re.error as e:
         return {"ok": False, "error": f"Invalid regex: {e}"}
+
+    if len(section) > MAX_SECTION_SIZE:
+        return {
+            "ok": False,
+            "error": f"Section too large: {len(section)} bytes (max {MAX_SECTION_SIZE})",
+        }
 
     dest_full.parent.mkdir(parents=True, exist_ok=True)
     if mode == "append" and dest_full.exists():
