@@ -23,7 +23,10 @@ def search_in_file(
 
     file_size = full.stat().st_size
     if file_size > MAX_FILE_SIZE:
-        return {"ok": False, "error": f"File too large: {file_size} bytes (max {MAX_FILE_SIZE})"}
+        return {
+            "ok": False,
+            "error": f"File too large: {file_size} bytes (max {MAX_FILE_SIZE})",
+        }
 
     try:
         content = full.read_text(encoding="utf-8")
@@ -68,15 +71,7 @@ def grep_workspace(
     exclude_dirs: list = None,
     limit: int = 20,
 ) -> dict:
-    """Search across all workspace files for a regex pattern.
-
-    Args:
-        pattern: Regex pattern to search for
-        workspace: Workspace directory
-        file_glob: File pattern to match (e.g., "*.php", "*.css")
-        exclude_dirs: List of directory names to exclude
-        limit: Max number of files to return (default: 20)
-    """
+    """Search across all workspace files for a regex pattern."""
     if not workspace.exists():
         return {"ok": True, "results": [], "total_matches": 0}
 

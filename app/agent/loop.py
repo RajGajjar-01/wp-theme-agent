@@ -22,6 +22,7 @@ from app.agent.tools import (
     list_base_theme_files,
     read_base_theme_file,
     seed_workspace_with_base_theme,
+    generate_acf_fields,
 )
 from app.agent.tools.schema import TOOLS
 from app.agent.prompts.system_prompt import build_system_prompt
@@ -148,6 +149,22 @@ def dispatch_tool(name: str, args: dict, workspace: Path, emit: Callable) -> str
                     "agent",
                     "warning",
                     f"{args.get('path')} — lint error: {result.get('error', '')[:80]}",
+                )
+
+        elif name == "generate_acf_fields":
+            theme_slug = args.get("theme_slug", "output")
+            result = generate_acf_fields(
+                template=args.get("template", ""),
+                content_areas=args.get("content_areas", []),
+                workspace=workspace,
+                scope=args.get("scope", "template"),
+                theme_slug=theme_slug,
+            )
+            if result.get("ok"):
+                emit(
+                    "agent",
+                    "complete",
+                    f"Generated ACF fields: {result.get('fields_generated')} fields in {result.get('json_file')}",
                 )
 
         elif name == "task_complete":
@@ -485,14 +502,29 @@ def run_agent(
 
 
 def _validate_output(output_dir: Path, emit: Callable) -> None:
-    """Run quick sanity checks on generated theme output and auto-fix common mistakes."""
+    """Run PHPCS on all PHP files + sanity checks."""
     import re
 
     if not output_dir.exists():
         return
 
     issues = []
+    syntax_errors = []
+    phpcs_issues = []
 
+    # 1. Run PHPCS on ALL PHP files
+    for filepath in output_dir.rglob("*.php"):
+        rel = str(filepath.relative_to(output_dir))
+
+        result = run_php_lint(rel, output_dir, timeout=30, auto_fix=False)
+
+        if not result.get("syntax_ok"):
+            syntax_errors.append(rel)
+
+        if result.get("remaining_errors", 0) > 0:
+            phpcs_issues.append(f"{rel} ({result['remaining_errors']})")
+
+    # 2. Existing sanity checks
     for filepath in output_dir.rglob("*.php"):
         try:
             content = filepath.read_text(encoding="utf-8")
@@ -501,29 +533,36 @@ def _validate_output(output_dir: Path, emit: Callable) -> None:
 
         rel = str(filepath.relative_to(output_dir))
 
-        # Check 1: Duplicate <body> tags in page templates (not header.php)
         if filepath.name != "header.php":
             body_tags = re.findall(r"<body[\s>]", content)
             if body_tags:
-                # Auto-fix: remove the duplicate <body...> tag
                 fixed = re.sub(r"\n?<body[^>]*>\s*\n?", "\n", content, count=1)
                 if fixed != content:
                     filepath.write_text(fixed, encoding="utf-8")
-                    issues.append(f"FIXED: Removed duplicate <body> tag from {rel}")
-                    logger.warning(f"  Auto-fixed: removed duplicate <body> from {rel}")
+                    issues.append(f"FIXED: {rel}")
+                    logger.warning(f"  Auto-fixed: {rel}")
 
-        # Check 2: Leftover _S_VERSION references
+        # Check 2: Leftover _S_VERSION references - auto-fix
         if "_S_VERSION" in content:
-            issues.append(
-                f"WARNING: {rel} still contains '_S_VERSION' (undefined constant)"
-            )
-            logger.warning(f"  {rel} contains undeclared _S_VERSION constant")
+            # Extract theme_slug from directory name
+            theme_slug = output_dir.name
+            version_const = f"{theme_slug.upper().replace('-', '_')}_VERSION"
+
+            fixed = content.replace("_S_VERSION", version_const)
+            if fixed != content:
+                filepath.write_text(fixed, encoding="utf-8")
+                issues.append(f"FIXED: {rel} (_S_VERSION → {version_const})")
+                logger.warning(f"  Auto-fixed: {rel} _S_VERSION → {version_const}")
+
+    # 3. Emit summary
+    if syntax_errors:
+        emit("agent", "error", f"Syntax errors: {', '.join(syntax_errors[:5])}")
+
+    if phpcs_issues:
+        emit("agent", "warning", f"PHPCS: {len(phpcs_issues)} files have issues")
 
     if issues:
-        emit(
-            "agent",
-            "warning",
-            f"Post-validation found {len(issues)} issue(s): {'; '.join(issues[:3])}",
-        )
-    else:
-        logger.info("Post-validation: no issues found")
+        emit("agent", "warning", f"Auto-fixed {len(issues)} issue(s)")
+
+    if not syntax_errors and not phpcs_issues and not issues:
+        emit("agent", "complete", "All PHP files validated ✓")

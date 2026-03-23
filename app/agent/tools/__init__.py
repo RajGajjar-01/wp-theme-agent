@@ -6,6 +6,8 @@ from .base_theme import (
     read_base_theme_file,
     seed_workspace_with_base_theme,
 )
+from .acf import generate_acf_fields, get_field_code
+from .phpcs_checker import checker
 
 __all__ = [
     "write_file",
@@ -19,4 +21,7 @@ __all__ = [
     "list_base_theme_files",
     "read_base_theme_file",
     "seed_workspace_with_base_theme",
+    "generate_acf_fields",
+    "get_field_code",
+    "checker",
 ]

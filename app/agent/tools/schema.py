@@ -171,7 +171,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "run_php_lint",
-            "description": "Check a PHP file for syntax errors. Call after every .php file you write or modify.",
+            "description": "Check a PHP file for syntax errors and WordPress coding standards. Auto-fixes fixable issues if PHPCS is available. Call after every .php file you write or modify.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -181,6 +181,54 @@ TOOLS = [
                     }
                 },
                 "required": ["path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "generate_acf_fields",
+            "description": "Generate ACF field group JSON files for editable content areas. Creates JSON files in acf-json/ folder that can be version controlled. Use this to make content editable via WordPress admin instead of hardcoded HTML.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "template": {
+                        "type": "string",
+                        "description": "Template file to make editable (e.g., 'front-page.php', 'header.php')",
+                    },
+                    "content_areas": {
+                        "type": "array",
+                        "description": "List of content areas to make editable. Each item: {'name': 'field_name', 'type': 'text|image|link|color_picker|textarea|true_false|select', 'label': 'Optional Label'}",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Field name (e.g., 'hero_title')",
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "description": "Field type: text, textarea, image, link, color_picker, true_false, select, wysiwyg",
+                                },
+                                "label": {
+                                    "type": "string",
+                                    "description": "Optional label (defaults to formatted name)",
+                                },
+                            },
+                            "required": ["name", "type"],
+                        },
+                    },
+                    "scope": {
+                        "type": "string",
+                        "enum": ["template", "global"],
+                        "description": "'template' for per-template fields (shows on specific page template), 'global' for theme-wide options (shows on options page)",
+                    },
+                    "theme_slug": {
+                        "type": "string",
+                        "description": "Theme slug (e.g., 'my-theme'). Defaults to theme folder name.",
+                    },
+                },
+                "required": ["template", "content_areas", "scope"],
             },
         },
     },
