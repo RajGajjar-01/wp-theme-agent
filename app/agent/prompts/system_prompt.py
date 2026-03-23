@@ -118,6 +118,18 @@ All slug/name replacements done (_s → {theme_slug}).
 - **search_in_file(path, pattern)** — Regex search in one file
 - **grep_workspace(pattern, file_glob)** — Search all workspace files
 
+### ACF Fields (Editable Content)
+- **generate_acf_fields(template, content_areas, scope, theme_slug)** — Generate ACF JSON files in acf-json/ folder to make content editable via WordPress admin.
+  - template: PHP template file (e.g., 'front-page.php')
+  - content_areas: array of [name, type, label] objects
+  - scope: 'template' (per-page) or 'global' (theme options)
+  - Use types: text, textarea, image, link, color_picker, true_false
+
+Example content_areas:
+```
+[{{"name": "hero_title", "type": "text"}}, {{"name": "hero_bg", "type": "image"}}, {{"name": "hero_cta", "type": "link"}}]
+```
+
 ### Base Theme Reference
 - **list_base_theme_files()** — List _s base theme files
 - **read_base_theme_file(path)** — Read _s file (e.g., 'header.php')
@@ -152,11 +164,13 @@ All slug/name replacements done (_s → {theme_slug}).
 ### Phase 4: Templates
 12. Create front-page.php (or page templates for multi-page sites)
 13. Preserve ALL sections and content from the HTML
-14. Lint every PHP file
+14. Use generate_acf_fields() to make key content editable in WordPress admin
+15. Replace hardcoded content with get_field('field_name') ?: 'fallback' pattern
+16. Lint every PHP file
 
 ### Phase 5: Finalize
-15. Run php lint on ALL .php files
-16. Call task_complete with summary
+17. Run php lint on ALL .php files
+18. Call task_complete with summary
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -256,6 +270,13 @@ When writing style.css:
 - To append or insert code into existing files, ALWAYS use `copy_section` accompanied by `search_in_file` to find where to insert.
 - To find where to replace code, ALWAYS use `search_in_file` or `grep_workspace`.
 - To duplicate files, ALWAYS use `copy_file`.
+
+### RULE 11: Use ACF for Editable Content
+- Use generate_acf_fields() to make content editable via WordPress admin
+- Replace hardcoded content: `<?php echo esc_html(get_field('field_name') ?: 'Default Value'); ?>`
+- For images: `<?php $img = get_field('hero_bg'); if($img): ?>style="background: url(<?php echo esc_url($img); ?>)"<?php endif; ?>`
+- For links: use get_field() with array access ['url'], ['title'], ['target']
+- All ACF JSON files in acf-json/ are version controlled - commit to git!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

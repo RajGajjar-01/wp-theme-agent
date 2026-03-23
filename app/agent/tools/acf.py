@@ -254,6 +254,20 @@ add_filter('acf/settings/load_json', function($paths) {
     $paths[] = get_stylesheet_directory() . '/acf-json';
     return $paths;
 });
+
+// Load ACF JSON fields programmatically
+$acf_json_path = get_stylesheet_directory() . '/acf-json';
+if (is_dir($acf_json_path)) {
+    $json_files = glob($acf_json_path . '/*.json');
+    if (!empty($json_files)) {
+        foreach ($json_files as $file) {
+            $json = json_decode(file_get_contents($file), true);
+            if ($json && isset($json['key'])) {
+                acf_add_local_field_group($json);
+            }
+        }
+    }
+}
 """
 
     if scope == "global":
