@@ -1,3 +1,6 @@
+import re
+
+
 def build_system_prompt(
     uploaded_files: dict[str, str],
     theme_name: str,
@@ -34,8 +37,69 @@ def build_system_prompt(
         f"  - {f['path']} ({f['size']} bytes)" for f in base_theme_files
     )
 
+    # Analyze HTML content for SPA-style multi-page detection
+    spa_pages = []
+    for name, content in uploaded_files.items():
+        if name.endswith((".html", ".htm")):
+            # Detect SPA-style pages: <main id="page-name" class="page">
+            main_matches = re.findall(
+                r'<main[^>]*id=["\']([^"\']+)["\'][^>]*class=["\'][^"\']*page[^"\']*["\']',
+                content,
+            )
+            if len(main_matches) > 1:
+                spa_pages = main_matches
+                break
+            # Also detect: <section id="page-name" class="page"> or similar patterns
+            if not spa_pages:
+                section_matches = re.findall(
+                    r'<(?:section|div)[^>]*id=["\']([^"\']+)["\'][^>]*class=["\'][^"\']*page[^"\']*["\']',
+                    content,
+                )
+                if len(section_matches) > 1:
+                    spa_pages = section_matches
+                    break
+
     # Page analysis section
-    if len(html_files) > 1:
+    if spa_pages:
+        page_section = f"""
+## SPA-Style Multi-Page Website (Single HTML with {len(spa_pages)} page sections)
+
+The uploaded HTML contains multiple "pages" as sections within ONE file.
+Detected page IDs: {", ".join(spa_pages)}
+
+**CRITICAL: You must extract each <main id="page-id"> section into a SEPARATE PHP template:**
+
+Mapping rules:
+- "{spa_pages[0]}" (usually "home") → front-page.php
+- "menu" → page-menu.php (add Template Name comment)
+- "about" → page-about.php (add Template Name comment)
+- "gallery" → page-gallery.php (add Template Name comment)
+- "contact" → page-contact.php (add Template Name comment)
+- "reservations" → page-reservations.php (add Template Name comment)
+- Any other ID → page-{{slug}}.php (add Template Name comment)
+
+Each template must:
+1. Start with: `<?php get_header(); ?>`
+2. Contain ONLY the content from that <main> section (strip the <main> wrapper)
+3. End with: `<?php get_footer(); ?>`
+4. Include Template Name header for custom page templates
+
+**DO NOT create a single front-page.php with all content.**
+**DO NOT create HTML files. Output must be PHP templates only.**
+
+Custom page template header format:
+```php
+<?php
+/*
+Template Name: Menu Page
+*/
+get_header();
+?>
+<!-- Page content here -->
+<?php get_footer(); ?>
+```
+"""
+    elif len(html_files) > 1:
         page_section = f"""
 ## Multi-Page Website ({len(html_files)} HTML pages)
 
@@ -48,6 +112,8 @@ Determine each page's WordPress role:
 - services.html → page-services.php  (add Template Name comment)
 - blog.html → home.php (blog listing)
 - Any other → page-{{slug}}.php (add Template Name comment)
+
+**DO NOT create HTML files. Output must be PHP templates only.**
 
 Custom page template header format:
 ```php
@@ -66,6 +132,8 @@ get_header();
 HTML page: {html_files[0]}
 
 Convert into front-page.php. Preserve ALL sections of the page.
+
+**DO NOT create HTML files. Output must be PHP templates only.**
 """
     else:
         page_section = ""
@@ -73,7 +141,12 @@ Convert into front-page.php. Preserve ALL sections of the page.
     return f"""You are a WordPress theme conversion agent. Convert uploaded website files into a
 professional WordPress theme by MODIFYING the pre-seeded _s (Underscores) base theme.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## ⛔ ABSOLUTE RULE: OUTPUT MUST BE PHP FILES ONLY
+- NEVER write .html files — all templates must be .php
+- NEVER output raw HTML without PHP template structure
+- Every template must start with `<?php` and use get_header()/get_footer()
+- The only acceptable file extensions are: .php, .css, .js, .json
+
 
 ## Theme Details
 - Theme Name: {theme_name}
@@ -82,7 +155,6 @@ professional WordPress theme by MODIFYING the pre-seeded _s (Underscores) base t
 - Function Prefix: {func_prefix}_
 - Author: {author}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ## Uploaded Source Files
 {upload_listing}
@@ -91,22 +163,22 @@ HTML: {", ".join(html_files) or "None"}
 CSS:  {", ".join(css_files) or "None"}
 JS:   {", ".join(js_files) or "None"}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ## Pre-Seeded Base Theme (already in {theme_slug}/)
 {base_listing}
 
 All slug/name replacements done (_s → {theme_slug}).
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {page_section}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ## Available Tools
 
 ### File Operations
 - **read_file(path)** — Read file ('uploads/...' or '{theme_slug}/...')
 - **write_file(path, content)** — Write/overwrite file in {theme_slug}/
+- **edit_file(path, edits)** — Make targeted search-and-replace edits to an existing file. **Prefer over write_file for small changes** (PHPCS fixes, adding a function, changing a value). Supports batched edits and fuzzy matching.
+  - `edits`: array of `{{"old_text": "...", "new_text": "...", "replace_all": false}}` objects
+  - `replace_all`: set to true to rename a variable/class everywhere in the file
 - **list_files()** — List workspace files with sizes
 
 ### Smart Copy (TOKEN SAVING — prefer over write_file)
@@ -140,8 +212,6 @@ Example content_areas:
 ### Completion
 - **task_complete(summary)** — Call when ALL work is done.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 ## Workflow
 
 ### Phase 1: Analyze
@@ -172,7 +242,6 @@ Example content_areas:
 17. Run php lint on ALL .php files
 18. Call task_complete with summary
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ## ⚠️ CRITICAL RULES — Content Visibility
 
@@ -263,11 +332,11 @@ When writing style.css:
   \u003csection class="hero"\u003e...    \u003c!-- ✅ CORRECT: no body tag --\u003e
   ```
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ### RULE 10: USE TOKEN-SAVING TOOLS
 - ALMOST NEVER use `write_file` for large files!
-- To append or insert code into existing files, ALWAYS use `copy_section` accompanied by `search_in_file` to find where to insert.
+- For **small, targeted changes** (adding a function, fixing a line, renaming a constant), ALWAYS use `edit_file` — it's the cheapest option.
+- To append or insert large blocks of code into existing files, ALWAYS use `copy_section` accompanied by `search_in_file` to find where to insert.
 - To find where to replace code, ALWAYS use `search_in_file` or `grep_workspace`.
 - To duplicate files, ALWAYS use `copy_file`.
 
@@ -277,8 +346,6 @@ When writing style.css:
 - For images: `<?php $img = get_field('hero_bg'); if($img): ?>style="background: url(<?php echo esc_url($img); ?>)"<?php endif; ?>`
 - For links: use get_field() with array access ['url'], ['title'], ['target']
 - All ACF JSON files in acf-json/ are version controlled - commit to git!
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ## style.css Structure
 ```

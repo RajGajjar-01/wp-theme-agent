@@ -17,6 +17,7 @@ from app.agent.tools import (
     run_php_lint,
     copy_file,
     copy_section,
+    edit_file,
     search_in_file,
     grep_workspace,
     list_base_theme_files,
@@ -68,6 +69,19 @@ def dispatch_tool(name: str, args: dict, workspace: Path, emit: Callable) -> str
                 emit(
                     "agent", "complete", f"Wrote {path} ({result.get('size', 0)} chars)"
                 )
+                if path.endswith(".php"):
+                    lint_result = run_php_lint(path, workspace)
+                    if not lint_result.get("ok"):
+                        emit(
+                            "agent",
+                            "warning",
+                            f"{path} — lint error: {lint_result.get('error', '')[:80]}",
+                        )
+                        result["lint_ok"] = False
+                        result["lint_error"] = lint_result.get("error", "")
+                    else:
+                        emit("agent", "complete", f"{path} — no syntax errors")
+                        result["lint_ok"] = True
 
         elif name == "read_file":
             result = read_file(args.get("path", ""), workspace)
@@ -90,6 +104,20 @@ def dispatch_tool(name: str, args: dict, workspace: Path, emit: Callable) -> str
                     "complete",
                     f"Copied {args.get('src')} → {args.get('dest')}",
                 )
+                dest = args.get("dest", "")
+                if dest.endswith(".php"):
+                    lint_result = run_php_lint(dest, workspace)
+                    if not lint_result.get("ok"):
+                        emit(
+                            "agent",
+                            "warning",
+                            f"{dest} — lint error: {lint_result.get('error', '')[:80]}",
+                        )
+                        result["lint_ok"] = False
+                        result["lint_error"] = lint_result.get("error", "")
+                    else:
+                        emit("agent", "complete", f"{dest} — no syntax errors")
+                        result["lint_ok"] = True
 
         elif name == "copy_section":
             result = copy_section(
@@ -109,6 +137,20 @@ def dispatch_tool(name: str, args: dict, workspace: Path, emit: Callable) -> str
                     "complete",
                     f"Copied section to {args.get('dest_file')} ({result.get('section_size', 0)} chars)",
                 )
+                dest_file = args.get("dest_file", "")
+                if dest_file.endswith(".php"):
+                    lint_result = run_php_lint(dest_file, workspace)
+                    if not lint_result.get("ok"):
+                        emit(
+                            "agent",
+                            "warning",
+                            f"{dest_file} — lint error: {lint_result.get('error', '')[:80]}",
+                        )
+                        result["lint_ok"] = False
+                        result["lint_error"] = lint_result.get("error", "")
+                    else:
+                        emit("agent", "complete", f"{dest_file} — no syntax errors")
+                        result["lint_ok"] = True
 
         elif name == "search_in_file":
             result = search_in_file(
@@ -129,6 +171,36 @@ def dispatch_tool(name: str, args: dict, workspace: Path, emit: Callable) -> str
                 logger.info(
                     f"  ✓ Grep '{args.get('pattern')}': {result.get('total_matches', 0)} matches in {result.get('files_matched', 0)} files"
                 )
+
+        elif name == "edit_file":
+            result = edit_file(
+                args.get("path", ""),
+                args.get("edits", []),
+                workspace,
+            )
+            if result.get("ok"):
+                logger.info(
+                    f"  ✓ Edited {args.get('path')} ({result.get('edits_applied', 0)} edit(s))"
+                )
+                emit(
+                    "agent",
+                    "complete",
+                    f"Edited {args.get('path')} ({result.get('edits_applied', 0)} edit(s) applied)",
+                )
+                path = args.get("path", "")
+                if path.endswith(".php"):
+                    lint_result = run_php_lint(path, workspace)
+                    if not lint_result.get("ok"):
+                        emit(
+                            "agent",
+                            "warning",
+                            f"{path} — lint error: {lint_result.get('error', '')[:80]}",
+                        )
+                        result["lint_ok"] = False
+                        result["lint_error"] = lint_result.get("error", "")
+                    else:
+                        emit("agent", "complete", f"{path} — no syntax errors")
+                        result["lint_ok"] = True
 
         elif name == "list_base_theme_files":
             result = list_base_theme_files()
@@ -528,7 +600,7 @@ def _validate_output(output_dir: Path, emit: Callable) -> None:
     for filepath in output_dir.rglob("*.php"):
         try:
             content = filepath.read_text(encoding="utf-8")
-        except (UnicodeDecodeError, PermissionError):
+        except UnicodeDecodeError, PermissionError:
             continue
 
         rel = str(filepath.relative_to(output_dir))

@@ -235,6 +235,51 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "edit_file",
+            "description": (
+                "Make targeted search-and-replace edits to an existing file. "
+                "Each edit specifies 'old_text' (must appear in the file) and 'new_text'. "
+                "Much more token-efficient than write_file for small changes — prefer it for PHPCS fixes. "
+                "Supports fuzzy matching (ignores trailing whitespace differences). "
+                "Set replace_all=true to replace every occurrence (e.g. rename a variable)."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "File path relative to workspace (e.g. 'my-theme/header.php')",
+                    },
+                    "edits": {
+                        "type": "array",
+                        "description": "List of edits to apply sequentially",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "old_text": {
+                                    "type": "string",
+                                    "description": "Exact text to find in the file (must be unique unless replace_all=true)",
+                                },
+                                "new_text": {
+                                    "type": "string",
+                                    "description": "Replacement text",
+                                },
+                                "replace_all": {
+                                    "type": "boolean",
+                                    "description": "If true, replace every occurrence. Default: false.",
+                                },
+                            },
+                            "required": ["old_text", "new_text"],
+                        },
+                    },
+                },
+                "required": ["path", "edits"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "task_complete",
             "description": "Call when ALL files have been written, modified, and linted. Stops the agent loop.",
             "parameters": {
