@@ -171,7 +171,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "run_php_lint",
-            "description": "Check a PHP file for syntax errors and WordPress coding standards. Auto-fixes fixable issues if PHPCS is available. Call after every .php file you write or modify.",
+            "description": "Check a PHP file for syntax errors (php -l). Call after every .php file you write or modify.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -188,31 +188,34 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "generate_acf_fields",
-            "description": "Generate ACF field group JSON files for editable content areas. Creates JSON files in acf-json/ folder that can be version controlled. Use this to make content editable via WordPress admin instead of hardcoded HTML.",
+            "description": (
+                "Generate ACF field group JSON for editable content. Supports nested fields (Repeaters/Groups). "
+                "Use type 'repeater' with 'sub_fields' for rotating/repeating content blocks like features, services, or testimonials. "
+                "Handles all JSON wiring automatically."
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
                     "template": {
                         "type": "string",
-                        "description": "Template file to make editable (e.g., 'front-page.php', 'header.php')",
+                        "description": "Template file (e.g. 'front-page.php', 'header.php')",
                     },
                     "content_areas": {
                         "type": "array",
-                        "description": "List of content areas to make editable. Each item: {'name': 'field_name', 'type': 'text|image|link|color_picker|textarea|true_false|select', 'label': 'Optional Label'}",
+                        "description": "List of fields. For Repeaters, include a 'sub_fields' list within the field object.",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {
-                                    "type": "string",
-                                    "description": "Field name (e.g., 'hero_title')",
-                                },
+                                "name": {"type": "string", "description": "Field name"},
                                 "type": {
                                     "type": "string",
-                                    "description": "Field type: text, textarea, image, link, color_picker, true_false, select, wysiwyg",
+                                    "description": "text, textarea, image, link, repeater, group, color_picker, true_false, select, wysiwyg",
                                 },
-                                "label": {
-                                    "type": "string",
-                                    "description": "Optional label (defaults to formatted name)",
+                                "label": {"type": "string", "description": "Display label"},
+                                "sub_fields": {
+                                    "type": "array",
+                                    "description": "List of sub-fields if type is 'repeater' or 'group'",
+                                    "items": {"type": "object"},
                                 },
                             },
                             "required": ["name", "type"],
@@ -221,11 +224,11 @@ TOOLS = [
                     "scope": {
                         "type": "string",
                         "enum": ["template", "global"],
-                        "description": "'template' for per-template fields (shows on specific page template), 'global' for theme-wide options (shows on options page)",
+                        "description": "'template' for page-specific fields, 'global' for site-wide options.",
                     },
                     "theme_slug": {
                         "type": "string",
-                        "description": "Theme slug (e.g., 'my-theme'). Defaults to theme folder name.",
+                        "description": "Theme folder name.",
                     },
                 },
                 "required": ["template", "content_areas", "scope"],
@@ -239,35 +242,22 @@ TOOLS = [
             "description": (
                 "Make targeted search-and-replace edits to an existing file. "
                 "Each edit specifies 'old_text' (must appear in the file) and 'new_text'. "
-                "Much more token-efficient than write_file for small changes — prefer it for PHPCS fixes. "
-                "Supports fuzzy matching (ignores trailing whitespace differences). "
-                "Set replace_all=true to replace every occurrence (e.g. rename a variable)."
+                "Much more token-efficient than write_file for small changes. "
+                "Supports fuzzy matching. Set replace_all=true for bulk renaming."
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "path": {
-                        "type": "string",
-                        "description": "File path relative to workspace (e.g. 'my-theme/header.php')",
-                    },
+                    "path": {"type": "string", "description": "File path (e.g. 'theme/header.php')"},
                     "edits": {
                         "type": "array",
                         "description": "List of edits to apply sequentially",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "old_text": {
-                                    "type": "string",
-                                    "description": "Exact text to find in the file (must be unique unless replace_all=true)",
-                                },
-                                "new_text": {
-                                    "type": "string",
-                                    "description": "Replacement text",
-                                },
-                                "replace_all": {
-                                    "type": "boolean",
-                                    "description": "If true, replace every occurrence. Default: false.",
-                                },
+                                "old_text": {"type": "string", "description": "Exact text to find"},
+                                "new_text": {"type": "string", "description": "Replacement text"},
+                                "replace_all": {"type": "boolean", "description": "Replace all occurrences. Default: false."},
                             },
                             "required": ["old_text", "new_text"],
                         },
@@ -277,6 +267,19 @@ TOOLS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "validate_theme",
+            "description": (
+                "Run a comprehensive structural health check on the generated theme. "
+                "Checks for required files, PHP syntax, WP hooks (wp_head/wp_footer), enqueues, and hardcoded content. "
+                "MANDATORY before calling task_complete. Returns actionable errors and warnings."
+            ),
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+
     {
         "type": "function",
         "function": {

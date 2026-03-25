@@ -157,46 +157,7 @@ The agent has access to the following tools:
 | `read_base_theme_file` | Read _s theme file contents |
 | `generate_acf_fields` | Create ACF field groups |
 
-### Linting Flow
 
-```mermaid
-sequenceDiagram
-    participant Agent
-    participant Tool as run_php_lint
-    participant PHP as php -l
-    participant PHPCS as PHPCS/PHPCBF
-    
-    Agent->>Tool: run_php_lint(header.php)
-    Tool->>PHP: Syntax Check
-    
-    alt Syntax Error
-        PHP-->>Tool: Parse Error
-        Tool-->>Agent: Error - Syntax Error
-    else Syntax OK
-        PHP-->>Tool: No Errors
-        
-        alt PHPCS Available
-            Tool->>PHPCS: Check WordPress Standards
-            
-            alt Errors Found
-                PHPCS-->>Tool: Errors + Fixable Count
-                
-                alt Fixable Issues Exist
-                    Tool->>PHPCS: Auto-fix (PHPCBF)
-                    PHPCS-->>Tool: Fixed Count
-                    Tool->>PHPCS: Re-check
-                end
-                
-                Tool-->>Agent: Remaining Errors + Fixed Count
-            else No Errors
-                PHPCS-->>Tool: Pass
-                Tool-->>Agent: OK
-            end
-        else PHPCS Not Available
-            Tool-->>Agent: OK (PHPCS Skipped)
-        end
-    end
-```
 
 ## Project Structure
 
