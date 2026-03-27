@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import os
 import re
 import shutil
 import uuid
@@ -25,7 +26,11 @@ logging.basicConfig(
 logger = logging.getLogger("api")
 
 
-WORKSPACE_ROOT = Path("/home/rajgajjar04/Projects/wp-theme-workspace/sessions")
+THEME_WORKSPACE_PATH = os.environ.get("THEME_WORKSPACE_PATH")
+if not THEME_WORKSPACE_PATH:
+    raise ValueError("THEME_WORKSPACE_PATH environment variable is not set")
+
+WORKSPACE_ROOT = Path(THEME_WORKSPACE_PATH)
 WORKSPACE_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Text-based extensions the agent can read
