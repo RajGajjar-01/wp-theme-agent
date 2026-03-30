@@ -1,0 +1,234 @@
+/* =============================================
+   SERVICES PAGE — SPECIFIC STYLES
+   ============================================= */
+
+/* ---- SERVICES DETAIL GRID ---- */
+.services-detail-section { background: var(--white); }
+
+.services-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+  padding: 20px;
+  background: var(--gray-100);
+  border-radius: var(--radius-lg);
+}
+.filter-btn {
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 2px solid var(--gray-200);
+  background: white;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.filter-btn:hover, .filter-btn.active {
+  background: var(--blue);
+  color: white;
+  border-color: var(--blue);
+}
+
+.service-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+}
+
+.service-detail-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  transition: var(--transition);
+  border: 1px solid var(--gray-200);
+}
+.service-detail-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--blue-light); }
+
+.sdc-icon-wrap {
+  width: 90px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  flex-shrink: 0;
+  color: white;
+}
+.sdc-body { padding: 24px; flex: 1; }
+.sdc-category {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--orange);
+  margin-bottom: 6px;
+}
+.sdc-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--blue-dark);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+.sdc-desc { font-size: 14px; color: var(--gray-600); line-height: 1.65; margin-bottom: 14px; }
+.sdc-features { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.sdc-feature {
+  background: var(--gray-100);
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--gray-600);
+  font-weight: 600;
+}
+.sdc-link {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s, gap 0.2s;
+}
+.sdc-link:hover { color: var(--orange); gap: 10px; }
+
+@media (max-width: 860px) { .service-detail-grid { grid-template-columns: 1fr; } }
+
+/* ---- SERVICE PRICING SECTION ---- */
+.pricing-section { background: var(--gray-100); }
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 48px;
+}
+.pricing-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 36px 30px;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  border: 2px solid transparent;
+  transition: var(--transition);
+  position: relative;
+}
+.pricing-card.featured {
+  background: var(--blue-dark);
+  color: white;
+  border-color: var(--orange);
+  transform: scale(1.04);
+}
+.pricing-card:hover { border-color: var(--blue-light); box-shadow: var(--shadow-lg); }
+.pricing-card.featured:hover { border-color: var(--orange-light); }
+
+.pricing-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--orange);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 14px;
+  border-radius: 100px;
+}
+.pricing-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.pricing-card:not(.featured) .pricing-name { color: var(--blue-dark); }
+.pricing-card.featured .pricing-name { color: white; }
+.pricing-price {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+  margin: 16px 0 6px;
+}
+.pricing-card:not(.featured) .pricing-price { color: var(--blue); }
+.pricing-card.featured .pricing-price { color: var(--orange-light); }
+.pricing-price-label { font-size: 13px; color: var(--gray-400); margin-bottom: 24px; }
+.pricing-card.featured .pricing-price-label { color: rgba(255,255,255,0.5); }
+.pricing-divider { height: 1px; background: var(--gray-200); margin: 20px 0; }
+.pricing-card.featured .pricing-divider { background: rgba(255,255,255,0.1); }
+.pricing-features { text-align: left; margin-bottom: 28px; }
+.pricing-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.pricing-card.featured .pricing-feature { border-bottom-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
+.pricing-feature-check { color: #22c55e; font-size: 16px; flex-shrink: 0; }
+.pricing-feature-x { color: var(--gray-400); font-size: 16px; flex-shrink: 0; }
+
+@media (max-width: 860px) { .pricing-grid { grid-template-columns: 1fr; } .pricing-card.featured { transform: none; } }
+
+/* ---- HOW IT WORKS ---- */
+.how-section { background: white; }
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  margin-top: 52px;
+  position: relative;
+}
+.how-steps::before {
+  content: '';
+  position: absolute;
+  top: 36px;
+  left: 60px;
+  right: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--orange));
+}
+.how-step { text-align: center; position: relative; }
+.how-step-num {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--blue-dark);
+  color: white;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  border: 4px solid var(--orange);
+  position: relative;
+  z-index: 1;
+}
+.how-step-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--blue-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.how-step-desc { font-size: 14px; color: var(--gray-600); line-height: 1.65; }
+@media (max-width: 768px) { .how-steps { grid-template-columns: 1fr 1fr; } .how-steps::before { display: none; } }
+@media (max-width: 500px) { .how-steps { grid-template-columns: 1fr; } }

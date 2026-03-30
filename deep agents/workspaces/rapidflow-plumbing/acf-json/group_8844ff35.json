@@ -1,0 +1,323 @@
+{
+    "key": "group_8844ff35",
+    "title": "Page Reviews Fields",
+    "fields": [
+        {
+            "key": "field_eb59872c",
+            "label": "Page Title",
+            "name": "page_title",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_8ac8b4b5",
+            "label": "Reviews Summary Title",
+            "name": "reviews_summary_title",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_faf9750f",
+            "label": "Reviews Summary Subtitle",
+            "name": "reviews_summary_subtitle",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_dd6eb2c3",
+            "label": "Average Rating (1-5)",
+            "name": "average_rating",
+            "type": "number",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "min": "",
+            "max": ""
+        },
+        {
+            "key": "field_a8e874e4",
+            "label": "Rating Display (e.g. 4.9)",
+            "name": "rating_number",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_3dc5efb7",
+            "label": "Total Reviews Text",
+            "name": "total_reviews_text",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_404bc9a7",
+            "label": "Reviews List",
+            "name": "reviews_list",
+            "type": "repeater",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "table",
+            "button_label": "Add Row",
+            "sub_fields": [
+                {
+                    "key": "field_3d2cd305",
+                    "label": "Rating (1-5)",
+                    "name": "rating",
+                    "type": "number",
+                    "required": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "min": "",
+                    "max": ""
+                },
+                {
+                    "key": "field_f1418e49",
+                    "label": "Review Text",
+                    "name": "review_text",
+                    "type": "textarea",
+                    "required": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "rows": 4,
+                    "new_lines": "br"
+                },
+                {
+                    "key": "field_ae539dad",
+                    "label": "Reviewer Name",
+                    "name": "reviewer_name",
+                    "type": "text",
+                    "required": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": ""
+                },
+                {
+                    "key": "field_d3899b1d",
+                    "label": "Date",
+                    "name": "date",
+                    "type": "text",
+                    "required": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": ""
+                },
+                {
+                    "key": "field_6f7cc6fd",
+                    "label": "Service Type",
+                    "name": "service_type",
+                    "type": "text",
+                    "required": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": ""
+                },
+                {
+                    "key": "field_9ca6f4ab",
+                    "label": "Avatar Image URL",
+                    "name": "avatar",
+                    "type": "url",
+                    "required": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": ""
+                }
+            ]
+        },
+        {
+            "key": "field_101ff244",
+            "label": "Leave Review Section Title",
+            "name": "leave_review_title",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_91deccf3",
+            "label": "Leave Review Description",
+            "name": "leave_review_description",
+            "type": "textarea",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "rows": 4,
+            "new_lines": "br"
+        },
+        {
+            "key": "field_b6772b20",
+            "label": "Review Platforms",
+            "name": "review_platforms",
+            "type": "repeater",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "table",
+            "button_label": "Add Row",
+            "sub_fields": [
+                {
+                    "key": "field_2ed79359",
+                    "label": "Platform Name",
+                    "name": "platform_name",
+                    "type": "text",
+                    "required": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": ""
+                },
+                {
+                    "key": "field_9ffe0a3a",
+                    "label": "Review Link",
+                    "name": "link",
+                    "type": "url",
+                    "required": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": ""
+                }
+            ]
+        },
+        {
+            "key": "field_324c9e59",
+            "label": "Review Section Image",
+            "name": "review_section_image",
+            "type": "url",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": ""
+        },
+        {
+            "key": "field_2d41b0e7",
+            "label": "CTA Title",
+            "name": "cta_title",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_2cb04618",
+            "label": "CTA Description",
+            "name": "cta_description",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "page_template",
+                "operator": "==",
+                "value": "page-reviews.php"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": 1,
+    "description": "Fields for rapidflow-plumbing",
+    "show_in_rest": 0
+}

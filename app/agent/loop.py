@@ -419,7 +419,7 @@ def run_agent(
         },
         {
             "role": "user",
-            "content": "Read all uploaded files and convert them into a complete WordPress theme following the workflow in your instructions. Use token-efficient tools (edit_file, copy_section, copy_file) wherever possible. Use generate_acf_fields() to make key content areas editable. Lint all PHP files after changes.",
+            "content": "Read all uploaded files and convert them into a complete WordPress theme following the workflow in your instructions. Use token-efficient tools (edit_file, copy_section, copy_file) wherever possible. Use generate_acf_fields() to make key content areas editable.",
         },
     ]
 

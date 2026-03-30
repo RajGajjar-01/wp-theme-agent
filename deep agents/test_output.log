@@ -1,0 +1,82 @@
+/home/rajgajjar04/Projects/WP-theme-gen/.venv/lib/python3.14/site-packages/langchain_core/_api/deprecation.py:25: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.fields import FieldInfo as FieldInfoV1
+00:38:24 | INFO     | test | ======================================================================
+00:38:24 | INFO     | test | RAPIDFLOW PLUMBING THEME GENERATION TEST
+00:38:24 | INFO     | test | ======================================================================
+00:38:24 | INFO     | test | Loading source files...
+00:38:24 | INFO     | test | Loaded: index.html (21387 chars)
+00:38:24 | INFO     | test | Loaded: reviews.html (15992 chars)
+00:38:24 | INFO     | test | Loaded: contact.html (17027 chars)
+00:38:24 | INFO     | test | Loaded: about.html (14890 chars)
+00:38:24 | INFO     | test | Loaded: services.html (21727 chars)
+00:38:24 | INFO     | test | Loaded: css/services.css (6454 chars)
+00:38:24 | INFO     | test | Loaded: css/common.css (15014 chars)
+00:38:24 | INFO     | test | Loaded: css/home.css (10552 chars)
+00:38:24 | INFO     | test | Loaded: css/pages.css (9694 chars)
+00:38:24 | INFO     | test | Loaded: js/pages.js (5924 chars)
+00:38:24 | INFO     | test | Loaded: js/common.js (4025 chars)
+00:38:24 | INFO     | test | Total files loaded: 11
+00:38:24 | INFO     | test | Total content size: 142,686 chars (~35,671 tokens estimated)
+00:38:24 | INFO     | test | ----------------------------------------------------------------------
+00:38:24 | INFO     | test | STARTING THEME GENERATION...
+00:38:24 | INFO     | test | ----------------------------------------------------------------------
+00:38:24 | INFO     | wp-agent | ============================================================
+00:38:24 | INFO     | wp-agent | STARTING THEME GENERATION
+00:38:24 | INFO     | wp-agent | ============================================================
+00:38:24 | INFO     | wp-agent | Theme: RapidFlow Plumbing
+00:38:24 | INFO     | wp-agent | Slug: rapidflow-plumbing
+00:38:24 | INFO     | wp-agent | Author: Deep Agents Test
+00:38:24 | INFO     | wp-agent | Files: 11
+00:38:24 | INFO     | wp-agent | Workspace: /home/rajgajjar04/Projects/WP-theme-gen/deep agents/workspaces
+00:38:24 | INFO     | wp-agent | Writing uploaded files to workspace...
+00:38:24 | INFO     | wp-agent |   Written: index.html (21387 chars)
+00:38:24 | INFO     | wp-agent |   Written: reviews.html (15992 chars)
+00:38:24 | INFO     | wp-agent |   Written: contact.html (17027 chars)
+00:38:24 | INFO     | wp-agent |   Written: about.html (14890 chars)
+00:38:24 | INFO     | wp-agent |   Written: services.html (21727 chars)
+00:38:24 | INFO     | wp-agent |   Written: css/services.css (6454 chars)
+00:38:24 | INFO     | wp-agent |   Written: css/common.css (15014 chars)
+00:38:24 | INFO     | wp-agent |   Written: css/home.css (10552 chars)
+00:38:24 | INFO     | wp-agent |   Written: css/pages.css (9694 chars)
+00:38:24 | INFO     | wp-agent |   Written: js/pages.js (5924 chars)
+00:38:24 | INFO     | wp-agent |   Written: js/common.js (4025 chars)
+00:38:24 | INFO     | wp-agent | Creating agent...
+00:38:24 | INFO     | wp-agent | Creating agent for theme: RapidFlow Plumbing (rapidflow-plumbing)
+00:38:24 | INFO     | wp-agent | Model: accounts/fireworks/models/glm-5
+00:38:24 | INFO     | wp-agent | Tools available: ['list_base_theme_files', 'read_base_theme_file', 'seed_base_theme', 'run_php_lint', 'generate_acf_fields', 'validate_theme', 'task_complete']
+00:38:24 | INFO     | wp-agent | System prompt length: 3937 chars
+00:38:24 | INFO     | wp-agent | Agent created successfully
+00:38:24 | INFO     | wp-agent | Using single-agent mode
+00:38:24 | INFO     | wp-agent | ------------------------------------------------------------
+00:38:24 | INFO     | wp-agent | INVOKING AGENT...
+00:38:24 | INFO     | wp-agent | ------------------------------------------------------------
+00:38:28 | INFO     | httpx | HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+00:38:28 | INFO     | wp-agent | [TOOL] seed_base_theme('rapidflow-plumbing') called
+00:38:28 | INFO     | wp-agent | [TOOL] Copying base theme to /home/rajgajjar04/Projects/WP-theme-gen/deep agents/workspaces/rapidflow-plumbing
+00:38:28 | INFO     | wp-agent | [TOOL] Applying replacements...
+00:38:28 | INFO     | wp-agent | [TOOL] Base theme seeded: 25 files modified
+00:38:28 | INFO     | wp-agent | [TOOL] DO NOT call seed_base_theme again. Continue with modifying files.
+00:38:30 | INFO     | httpx | HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+00:38:32 | INFO     | httpx | HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+00:38:34 | INFO     | httpx | HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+00:38:35 | INFO     | httpx | HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+00:38:35 | INFO     | openai._base_client | Retrying request to /chat/completions in 0.463557 seconds
+00:38:38 | INFO     | httpx | HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+00:38:40 | INFO     | httpx | HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+00:38:40 | INFO     | wp-agent | [TOOL] list_base_theme_files() called
+00:38:40 | INFO     | wp-agent | [TOOL] Found 26 base theme files
+00:38:44 | INFO     | httpx | HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+00:38:46 | INFO     | httpx | HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+00:38:46 | INFO     | wp-agent | [TOOL] read_base_theme_file('style.css') called
+00:38:46 | INFO     | wp-agent | [TOOL] Read style.css (16958 chars)
+00:38:46 | INFO     | wp-agent | [TOOL] read_base_theme_file('footer.php') called
+00:38:46 | INFO     | wp-agent | [TOOL] read_base_theme_file('functions.php') called
+00:38:46 | INFO     | wp-agent | [TOOL] read_base_theme_file('header.php') called
+00:38:46 | INFO     | wp-agent | [TOOL] Read functions.php (4707 chars)
+00:38:46 | INFO     | wp-agent | [TOOL] Read header.php (1870 chars)
+00:38:46 | INFO     | wp-agent | [TOOL] Read footer.php (876 chars)
+00:38:51 | INFO     | httpx | HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+00:38:52 | INFO     | httpx | HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+00:38:52 | INFO     | openai._base_client | Retrying request to /chat/completions in 0.394202 seconds
+00:38:53 | INFO     | httpx | HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+00:38:53 | INFO     | openai._base_client | Retrying request to /chat/completions in 0.915690 seconds

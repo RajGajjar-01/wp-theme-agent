@@ -1,0 +1,217 @@
+{
+    "key": "group_61b964db",
+    "title": "Theme Options",
+    "fields": [
+        {
+            "key": "field_7cc3ee45",
+            "label": "Logo Image URL",
+            "name": "logo",
+            "type": "url",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": ""
+        },
+        {
+            "key": "field_4c54e6fc",
+            "label": "Tagline",
+            "name": "tagline",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_40437698",
+            "label": "Phone Number",
+            "name": "phone_number",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_44e6f52b",
+            "label": "Email Address",
+            "name": "email_address",
+            "type": "email",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": ""
+        },
+        {
+            "key": "field_becf99d1",
+            "label": "Business Address",
+            "name": "business_address",
+            "type": "textarea",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "rows": 4,
+            "new_lines": "br"
+        },
+        {
+            "key": "field_2688ea10",
+            "label": "Business Hours",
+            "name": "business_hours",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_7f98602b",
+            "label": "Social Media Links",
+            "name": "social_links",
+            "type": "group",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_8a7842d2",
+                    "label": "Facebook URL",
+                    "name": "facebook",
+                    "type": "url",
+                    "required": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": ""
+                },
+                {
+                    "key": "field_e8ecd34e",
+                    "label": "Twitter URL",
+                    "name": "twitter",
+                    "type": "url",
+                    "required": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": ""
+                },
+                {
+                    "key": "field_e0f6f88e",
+                    "label": "Instagram URL",
+                    "name": "instagram",
+                    "type": "url",
+                    "required": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": ""
+                },
+                {
+                    "key": "field_1b95a89c",
+                    "label": "LinkedIn URL",
+                    "name": "linkedin",
+                    "type": "url",
+                    "required": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": ""
+                }
+            ]
+        },
+        {
+            "key": "field_d31b6317",
+            "label": "Footer About Title",
+            "name": "footer_about_title",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_b639a543",
+            "label": "Footer About Text",
+            "name": "footer_about_text",
+            "type": "textarea",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "rows": 4,
+            "new_lines": "br"
+        },
+        {
+            "key": "field_0f8aa8de",
+            "label": "Copyright Text",
+            "name": "copyright_text",
+            "type": "text",
+            "required": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "theme-options"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": 1,
+    "description": "Fields for rapidflow-plumbing",
+    "show_in_rest": 0
+}
