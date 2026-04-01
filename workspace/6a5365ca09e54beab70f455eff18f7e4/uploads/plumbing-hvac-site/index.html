@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FlowForce — Plumbing & HVAC Experts</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+  <!-- ========== LOADER ========== -->
+  <div class="loader" id="loader">
+    <div class="loader-icon">
+      <i class="fa-solid fa-droplet"></i>
+    </div>
+    <span>FlowForce</span>
+  </div>
+
+  <!-- ========== NAVBAR ========== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-logo">
+      <i class="fa-solid fa-droplet"></i>
+      <span>FlowForce</span>
+    </div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#why-us">Why Us</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#testimonials">Reviews</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="tel:+18005551234" class="nav-cta">
+      <i class="fa-solid fa-phone"></i> Call Now
+    </a>
+    <div class="hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- ========== HERO ========== -->
+  <section class="hero" id="home">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge reveal">
+        <span class="pulse-dot"></span> Available 24/7 — Emergency Service
+      </div>
+      <h1 class="reveal">
+        Your Home.<br/>
+        <span class="accent">Perfectly</span><br/>
+        Flowing.
+      </h1>
+      <p class="hero-sub reveal">Expert Plumbing & HVAC solutions delivered fast, clean, and guaranteed. Serving families since 1998.</p>
+      <div class="hero-actions reveal">
+        <a href="#contact" class="btn btn-primary">Get Free Estimate</a>
+        <a href="#services" class="btn btn-ghost">Explore Services</a>
+      </div>
+      <div class="hero-stats reveal">
+        <div class="stat">
+          <strong>25+</strong><span>Years Experience</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <strong>12K+</strong><span>Jobs Completed</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <strong>100%</strong><span>Satisfaction Rate</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual reveal">
+      <div class="hero-card card-1">
+        <i class="fa-solid fa-temperature-half"></i>
+        <div>
+          <strong>AC Repair</strong>
+          <span>Same-day service</span>
+        </div>
+      </div>
+      <div class="hero-card card-2">
+        <i class="fa-solid fa-wrench"></i>
+        <div>
+          <strong>Pipe Fix</strong>
+          <span>No mess, no stress</span>
+        </div>
+      </div>
+      <div class="hero-image-wrap">
+        <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&q=80" alt="Technician at work"/>
+        <div class="hero-image-badge">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Licensed & Insured</span>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-hint">
+      <span>Scroll</span>
+      <i class="fa-solid fa-arrow-down"></i>
+    </div>
+  </section>
+
+  <!-- ========== SERVICES ========== -->
+  <section class="services section" id="services">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="label">What We Do</span>
+        <h2>Our Core Services</h2>
+        <p>From leaky faucets to full HVAC system installations — we handle it all with precision.</p>
+      </div>
+      <div class="services-grid">
+
+        <div class="service-card reveal" data-delay="0">
+          <div class="service-icon" style="--c:#E8420A">
+            <i class="fa-solid fa-fire-flame-curved"></i>
+          </div>
+          <h3>Heating Systems</h3>
+          <p>Furnace installation, repair, and tune-ups. Stay warm all winter with our certified heating experts.</p>
+          <ul>
+            <li>Furnace Repair & Replacement</li>
+            <li>Boiler Services</li>
+            <li>Radiant Heating</li>
+          </ul>
+          <a href="#contact" class="service-link">Book Now <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <div class="service-card reveal" data-delay="100">
+          <div class="service-icon" style="--c:#0A87E8">
+            <i class="fa-solid fa-snowflake"></i>
+          </div>
+          <h3>Air Conditioning</h3>
+          <p>Keep cool with high-efficiency AC installs, repairs, and annual maintenance plans tailored to your home.</p>
+          <ul>
+            <li>AC Installation & Repair</li>
+            <li>Duct Cleaning & Sealing</li>
+            <li>Smart Thermostat Setup</li>
+          </ul>
+          <a href="#contact" class="service-link">Book Now <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <div class="service-card reveal" data-delay="200">
+          <div class="service-icon" style="--c:#0ABF8A">
+            <i class="fa-solid fa-faucet-drip"></i>
+          </div>
+          <h3>Plumbing Repair</h3>
+          <p>Emergency or routine — our plumbers are ready to tackle leaks, clogs, and pipe issues with speed and care.</p>
+          <ul>
+            <li>Leak Detection & Repair</li>
+            <li>Drain & Sewer Cleaning</li>
+            <li>Fixture Installation</li>
+          </ul>
+          <a href="#contact" class="service-link">Book Now <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <div class="service-card reveal" data-delay="300">
+          <div class="service-icon" style="--c:#A30AE8">
+            <i class="fa-solid fa-water"></i>
+          </div>
+          <h3>Water Heaters</h3>
+          <p>Traditional tank or energy-saving tankless — we install and repair all water heater types quickly.</p>
+          <ul>
+            <li>Tank & Tankless Installation</li>
+            <li>Hot Water Repair</li>
+            <li>Annual Flushing Service</li>
+          </ul>
+          <a href="#contact" class="service-link">Book Now <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <div class="service-card reveal" data-delay="400">
+          <div class="service-icon" style="--c:#E8A80A">
+            <i class="fa-solid fa-wind"></i>
+          </div>
+          <h3>Indoor Air Quality</h3>
+          <p>Breathe cleaner air with our filtration, humidification, and ventilation system services.</p>
+          <ul>
+            <li>Air Purifier Installation</li>
+            <li>Humidity Control</li>
+            <li>Ventilation Solutions</li>
+          </ul>
+          <a href="#contact" class="service-link">Book Now <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <div class="service-card reveal emergency-card" data-delay="500">
+          <div class="emergency-badge"><span class="pulse-dot red"></span> Emergency</div>
+          <div class="service-icon" style="--c:#E8100A">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <h3>24/7 Emergency</h3>
+          <p>Burst pipe at midnight? Heater out in a snowstorm? We're always on call. Fast response guaranteed.</p>
+          <a href="tel:+18005551234" class="btn btn-emergency">
+            <i class="fa-solid fa-phone-volume"></i> Call Emergency Line
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== WHY US ========== -->
+  <section class="why-us section" id="why-us">
+    <div class="container">
+      <div class="why-inner">
+        <div class="why-image-side reveal">
+          <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&q=80" alt="HVAC technician"/>
+          <div class="experience-badge">
+            <strong>25</strong>
+            <span>Years in<br/>Business</span>
+          </div>
+        </div>
+        <div class="why-content-side reveal">
+          <span class="label">Why Choose Us</span>
+          <h2>Built on Trust, Backed by Expertise</h2>
+          <p>We're not just another service company. FlowForce is a family-run business that treats every home like our own — with honesty, skill, and respect.</p>
+
+          <div class="why-points">
+            <div class="why-point">
+              <div class="why-point-icon"><i class="fa-solid fa-certificate"></i></div>
+              <div>
+                <h4>Fully Licensed & Certified</h4>
+                <p>All technicians hold state certifications and undergo continuous training.</p>
+              </div>
+            </div>
+            <div class="why-point">
+              <div class="why-point-icon"><i class="fa-solid fa-clock"></i></div>
+              <div>
+                <h4>On-Time, Every Time</h4>
+                <p>We respect your schedule. If we're late, your service is free.</p>
+              </div>
+            </div>
+            <div class="why-point">
+              <div class="why-point-icon"><i class="fa-solid fa-tag"></i></div>
+              <div>
+                <h4>Upfront, Flat-Rate Pricing</h4>
+                <p>No hidden fees, no surprises. You'll know the price before we start.</p>
+              </div>
+            </div>
+            <div class="why-point">
+              <div class="why-point-icon"><i class="fa-solid fa-medal"></i></div>
+              <div>
+                <h4>100% Satisfaction Guarantee</h4>
+                <p>Not happy? We'll make it right — free of charge, every time.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PROCESS ========== -->
+  <section class="process section" id="process">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="label">How It Works</span>
+        <h2>Simple. Fast. Done Right.</h2>
+        <p>Getting your home back to perfect takes just 4 easy steps.</p>
+      </div>
+      <div class="process-steps">
+        <div class="process-step reveal" data-delay="0">
+          <div class="step-number">01</div>
+          <div class="step-icon"><i class="fa-solid fa-phone"></i></div>
+          <h3>Call or Book Online</h3>
+          <p>Reach us 24/7 by phone or schedule through our easy online form in under 2 minutes.</p>
+        </div>
+        <div class="process-connector"></div>
+        <div class="process-step reveal" data-delay="100">
+          <div class="step-number">02</div>
+          <div class="step-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+          <h3>We Diagnose the Issue</h3>
+          <p>Our expert technicians arrive on time, assess the situation, and explain everything clearly.</p>
+        </div>
+        <div class="process-connector"></div>
+        <div class="process-step reveal" data-delay="200">
+          <div class="step-number">03</div>
+          <div class="step-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+          <h3>Quality Work, Fast</h3>
+          <p>We get the job done right using top-grade parts and time-tested techniques.</p>
+        </div>
+        <div class="process-connector"></div>
+        <div class="process-step reveal" data-delay="300">
+          <div class="step-number">04</div>
+          <div class="step-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <h3>Final Inspection</h3>
+          <p>We test everything, clean up the workspace, and walk you through what was done.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TESTIMONIALS ========== -->
+  <section class="testimonials section" id="testimonials">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="label">Customer Reviews</span>
+        <h2>What Our Clients Say</h2>
+      </div>
+      <div class="testimonial-slider">
+        <div class="testimonial-track" id="testimonialTrack">
+
+          <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p>"FlowForce fixed our burst pipe at 2am within an hour of calling. Incredible service — professional, clean, and fair priced. These guys are lifesavers!"</p>
+            <div class="reviewer">
+              <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah M."/>
+              <div>
+                <strong>Sarah M.</strong>
+                <span>Homeowner, Austin TX</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p>"Our HVAC system was failing in July heat. FlowForce came same-day, gave us a flat-rate quote, and had us cool again by evening. Absolutely recommend!"</p>
+            <div class="reviewer">
+              <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="James R."/>
+              <div>
+                <strong>James R.</strong>
+                <span>Property Manager</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p>"I've used FlowForce three times now. Every technician is polite, knowledgeable, and leaves everything spotless. Genuinely the best in the business."</p>
+            <div class="reviewer">
+              <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Linda K."/>
+              <div>
+                <strong>Linda K.</strong>
+                <span>Long-time Customer</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p>"Upfront pricing, no surprises on the bill, and the technician explained every step. Replaced my water heater in under 3 hours. 10/10 experience."</p>
+            <div class="reviewer">
+              <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Derek T."/>
+              <div>
+                <strong>Derek T.</strong>
+                <span>Small Business Owner</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="slider-controls">
+          <button class="slider-btn" id="prevBtn"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="slider-dots" id="sliderDots"></div>
+          <button class="slider-btn" id="nextBtn"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CONTACT ========== -->
+  <section class="contact section" id="contact">
+    <div class="container">
+      <div class="contact-inner">
+        <div class="contact-info reveal">
+          <span class="label">Get In Touch</span>
+          <h2>Request a Free Estimate</h2>
+          <p>Fill out the form and we'll get back to you within 30 minutes during business hours.</p>
+
+          <div class="contact-details">
+            <a href="tel:+18005551234" class="contact-detail">
+              <i class="fa-solid fa-phone"></i>
+              <div><strong>Phone</strong><span>+1 (800) 555-1234</span></div>
+            </a>
+            <a href="mailto:hello@flowforce.com" class="contact-detail">
+              <i class="fa-solid fa-envelope"></i>
+              <div><strong>Email</strong><span>hello@flowforce.com</span></div>
+            </a>
+            <div class="contact-detail">
+              <i class="fa-solid fa-location-dot"></i>
+              <div><strong>Service Area</strong><span>Greater Metro & Suburbs</span></div>
+            </div>
+            <div class="contact-detail">
+              <i class="fa-solid fa-clock"></i>
+              <div><strong>Hours</strong><span>Mon–Sat: 7am–8pm | 24/7 Emergency</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-form-wrap reveal">
+          <form class="contact-form" id="contactForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" placeholder="John Smith" required />
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" placeholder="+1 (555) 000-0000" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" placeholder="john@email.com" required />
+            </div>
+            <div class="form-group">
+              <label>Service Needed</label>
+              <select required>
+                <option value="">Select a service...</option>
+                <option>Plumbing Repair</option>
+                <option>AC Repair / Installation</option>
+                <option>Heating / Furnace</option>
+                <option>Water Heater</option>
+                <option>Indoor Air Quality</option>
+                <option>Emergency Service</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Message</label>
+              <textarea rows="4" placeholder="Describe the issue..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">
+              <i class="fa-solid fa-paper-plane"></i> Send Request
+            </button>
+            <div class="form-success" id="formSuccess">
+              <i class="fa-solid fa-circle-check"></i> Thanks! We'll contact you within 30 minutes.
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            <i class="fa-solid fa-droplet"></i>
+            <span>FlowForce</span>
+          </div>
+          <p>Professional Plumbing & HVAC services you can count on — 24 hours a day, 365 days a year.</p>
+          <div class="social-links">
+            <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+            <a href="#"><i class="fa-brands fa-yelp"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="#services">Heating Systems</a></li>
+            <li><a href="#services">Air Conditioning</a></li>
+            <li><a href="#services">Plumbing Repair</a></li>
+            <li><a href="#services">Water Heaters</a></li>
+            <li><a href="#services">Indoor Air Quality</a></li>
+            <li><a href="#services">Emergency Service</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#why-us">About Us</a></li>
+            <li><a href="#process">Our Process</a></li>
+            <li><a href="#testimonials">Reviews</a></li>
+            <li><a href="#contact">Get an Estimate</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:+18005551234">+1 (800) 555-1234</a></li>
+            <li><a href="mailto:hello@flowforce.com">hello@flowforce.com</a></li>
+            <li>Mon–Sat: 7am – 8pm</li>
+            <li>Emergency: 24/7</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 FlowForce Plumbing & HVAC. All rights reserved.</p>
+        <p>Licensed, Bonded & Insured — LIC #PH-44821</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== BACK TO TOP ========== -->
+  <button class="back-to-top" id="backToTop">
+    <i class="fa-solid fa-chevron-up"></i>
+  </button>
+
+  <script src="script.js"></script>
+</body>
+</html>

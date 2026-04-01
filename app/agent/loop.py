@@ -24,6 +24,7 @@ from app.agent.tools import (
     read_base_theme_file,
     seed_workspace_with_base_theme,
     generate_acf_fields,
+    validate_theme,
 )
 from app.agent.tools.schema import TOOLS
 from app.agent.prompts.system_prompt import build_system_prompt
@@ -31,6 +32,17 @@ from app.agent.prompts.system_prompt import build_system_prompt
 load_dotenv()
 
 logger = logging.getLogger("agent")
+
+# ---------------------------------------------------------------------------
+# Boot-time assertion: every tool the LLM can see must have a dispatch branch.
+# Add new tools here when you add them to schema.py.
+# ---------------------------------------------------------------------------
+_DISPATCHED_TOOL_NAMES = {
+    "write_file", "read_file", "list_files", "copy_file", "copy_section",
+    "search_in_file", "grep_workspace", "edit_file", "list_base_theme_files",
+    "read_base_theme_file", "run_php_lint", "generate_acf_fields",
+    "validate_theme", "task_complete",
+}
 
 client = OpenAI(
     api_key=os.getenv("FIREWORKS_API_KEY"),
@@ -237,6 +249,21 @@ def dispatch_tool(name: str, args: dict, workspace: Path, emit: Callable) -> str
                     "agent",
                     "complete",
                     f"Generated ACF fields: {result.get('fields_generated')} fields in {result.get('json_file')}",
+                )
+
+        elif name == "validate_theme":
+            result = validate_theme(workspace)
+            if result.get("ok"):
+                emit(
+                    "agent",
+                    "complete",
+                    f"Theme validated: {result.get('checks_passed', 0)}/{result.get('checks_total', 0)} checks passed",
+                )
+            else:
+                emit(
+                    "agent",
+                    "warning",
+                    f"Validation: {len(result.get('errors', []))} error(s), {len(result.get('warnings', []))} warning(s)",
                 )
 
         elif name == "task_complete":

@@ -80,7 +80,7 @@ def grep_workspace(
             continue
         try:
             content = filepath.read_text(encoding="utf-8")
-        except UnicodeDecodeError, PermissionError:
+        except (UnicodeDecodeError, PermissionError):
             continue
         file_matches = []
         lines = content.splitlines()

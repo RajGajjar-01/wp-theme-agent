@@ -1,514 +1,693 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WP Theme Agent — HTML to WordPress</title>
-<meta name="description" content="Convert multi-page HTML/CSS/JS websites into production-ready WordPress themes using AI and the _s base theme.">
-<script src="https://cdn.tailwindcss.com"></script>
+<meta name="description" content="Convert multi-page HTML/CSS/JS websites into production-ready WordPress themes using AI.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script>
-tailwind.config = {
-  darkMode: 'class',
-  theme: {
-    extend: {
-      fontFamily: {
-        sans: ['Syne', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
-      },
-      colors: {
-        bg:      '#0a0a0f',
-        surface: '#111118',
-        border:  '#1e1e2e',
-        muted:   '#3a3a52',
-        dim:     '#6b6b8a',
-        text:    '#e8e8f0',
-        soft:    '#a0a0c0',
-        accent:  '#7c6af7',
-        'accent-dim': '#3d3480',
-        green:   '#22c98a',
-        amber:   '#f59e0b',
-        red:     '#ef4444',
-        blue:    '#60a5fa',
-        orange:  '#fb923c',
-        yellow:  '#facc15',
-      },
-      keyframes: {
-        'blink':     { '0%,100%': { opacity: 1 }, '50%': { opacity: 0 } },
-        'fadein':    { from: { opacity: 0, transform: 'translateY(6px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
-        'slideup':   { from: { opacity: 0, transform: 'translateY(12px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
-        'pulse-ring':{ '0%': { transform: 'scale(1)', opacity: 0.6 }, '100%': { transform: 'scale(1.8)', opacity: 0 } },
-      },
-      animation: {
-        'blink':      'blink 1s step-end infinite',
-        'fadein':     'fadein 0.25s ease-out both',
-        'slideup':    'slideup 0.35s ease-out both',
-        'pulse-ring': 'pulse-ring 1.4s ease-out infinite',
-      },
-    },
-  },
-}
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- highlight.js for code syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; }
+/* ── Reset & Base ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
 
-  body {
-    background: #0a0a0f;
-    color: #e8e8f0;
-    font-family: 'Syne', system-ui, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background-image:
-      linear-gradient(rgba(124,106,247,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(124,106,247,0.03) 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
+:root {
+  --bg:        #0d0d14;
+  --surface:   #13131e;
+  --surface2:  #1a1a28;
+  --border:    #232336;
+  --border2:   #2e2e48;
+  --muted:     #3e3e5e;
+  --dim:       #6060888;
+  --soft:      #9898b8;
+  --text:      #e2e2f0;
+  --accent:    #7c6af7;
+  --accent-d:  #5848c0;
+  --accent-g:  rgba(124,106,247,0.12);
+  --green:     #22c98a;
+  --green-d:   rgba(34,201,138,0.12);
+  --amber:     #f59e0b;
+  --red:       #ef4444;
+  --blue:      #60a5fa;
+  --orange:    #fb923c;
+  --purple:    #a78bfa;
+}
 
-  body::before {
-    content: '';
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background: linear-gradient(transparent 50%, rgba(0,0,0,0.04) 50%);
-    background-size: 100% 4px;
-  }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
 
-  main { flex: 1; position: relative; z-index: 1; }
+/* Subtle grid */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(124,106,247,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,106,247,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
 
-  .drop-zone { transition: border-color .2s, background .2s; }
-  .drop-zone:hover, .drop-zone.active {
-    border-color: #7c6af7 !important;
-    background: rgba(124,106,247,0.06) !important;
-  }
+/* ── Header ───────────────────────────────────────────────────────────── */
+#header {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative; z-index: 10;
+  background: rgba(13,13,20,0.9);
+  backdrop-filter: blur(12px);
+}
 
-  input:focus { outline: none; border-color: #7c6af7 !important; box-shadow: 0 0 0 3px rgba(124,106,247,0.15); }
+.logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.logo-text { font-size: 14px; font-weight: 700; letter-spacing: -0.3px; }
+.logo-sub  { font-size: 11px; color: var(--soft); font-family: 'JetBrains Mono', monospace; margin-top: 1px; }
 
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #2a2a3e; border-radius: 2px; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--soft);
+  border: 1px solid var(--border2);
+  padding: 3px 8px; border-radius: 4px;
+}
 
-  .log-entry  { animation: fadein 0.18s ease-out both; }
-  .file-row   { animation: fadein 0.25s ease-out both; }
-  .section-enter { animation: slideup 0.35s ease-out both; }
+/* ── Layout ───────────────────────────────────────────────────────────── */
+#layout {
+  flex: 1; overflow: hidden;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  position: relative; z-index: 1;
+}
 
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #7c6af7, #22c98a);
-    border-radius: 9999px;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+/* ── Left Panel ───────────────────────────────────────────────────────── */
+#left-panel {
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+}
 
-  .glow-green { box-shadow: 0 0 20px rgba(34,201,138,0.25); }
+#left-scroll {
+  flex: 1; overflow-y: auto; padding: 24px;
+}
 
-  .bracket::before, .bracket::after {
-    content: '';
-    position: absolute;
-    width: 12px; height: 12px;
-    border-color: #3a3a52;
-    border-style: solid;
-  }
-  .bracket::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
-  .bracket::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-  #thinking-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; line-height: 1.7;
-    color: #a0a0c0; white-space: pre-wrap; word-break: break-word;
-  }
+/* ── Upload zone ──────────────────────────────────────────────────────── */
+.section-title {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--soft);
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
 
-  /* File tree badge */
-  .type-badge { font-size: 9px; font-weight: 600; letter-spacing: 0.05em; padding: 1px 5px; border-radius: 3px; }
-  .badge-html   { background: rgba(251,146,60,0.15); color: #fb923c; }
-  .badge-css    { background: rgba(96,165,250,0.15);  color: #60a5fa; }
-  .badge-js     { background: rgba(250,204,21,0.15);  color: #facc15; }
-  .badge-image  { background: rgba(34,201,138,0.15);  color: #22c98a; }
-  .badge-asset  { background: rgba(124,106,247,0.15); color: #7c6af7; }
-  .badge-other  { background: rgba(107,107,138,0.15); color: #6b6b8a; }
+.drop-zone {
+  border: 1.5px dashed var(--border2);
+  border-radius: 12px; padding: 28px 20px;
+  text-align: center; cursor: pointer;
+  transition: border-color .2s, background .2s;
+  position: relative;
+}
+.drop-zone:hover, .drop-zone.active {
+  border-color: var(--accent);
+  background: var(--accent-g);
+}
+.drop-zone-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px;
+  font-size: 18px;
+}
+.drop-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.drop-sub   { font-size: 11px; color: var(--soft); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
 
-  /* Page map pill */
-  .role-pill { font-size: 9px; font-weight: 500; padding: 2px 6px;
-               border-radius: 999px; border: 1px solid rgba(124,106,247,0.3);
-               color: #7c6af7; background: rgba(124,106,247,0.08); }
+.mode-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.mode-tab {
+  height: 28px; padding: 0 12px; border-radius: 6px;
+  font-size: 11px; font-family: 'JetBrains Mono', monospace;
+  border: 1px solid var(--border2); background: none;
+  color: var(--soft); cursor: pointer; transition: all .15s;
+}
+.mode-tab.active {
+  border-color: var(--accent); color: var(--accent);
+  background: var(--accent-g);
+}
+
+/* ── File tree ────────────────────────────────────────────────────────── */
+.file-tree {
+  border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+  margin-top: 10px;
+}
+.file-tree-header {
+  padding: 8px 12px; background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; color: var(--soft);
+}
+.file-tree-body { max-height: 200px; overflow-y: auto; }
+.file-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px; font-size: 11px;
+  border-bottom: 1px solid var(--border)/50;
+  font-family: 'JetBrains Mono', monospace;
+  transition: background .1s;
+}
+.file-row:hover { background: var(--surface2); }
+.file-row:last-child { border-bottom: none; }
+
+.type-badge {
+  font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px;
+  flex-shrink: 0; letter-spacing: 0.05em;
+}
+.badge-html  { background: rgba(251,146,60,.15); color: var(--orange); }
+.badge-css   { background: rgba(96,165,250,.15);  color: var(--blue); }
+.badge-js    { background: rgba(250,204,21,.15);  color: #facc15; }
+.badge-image { background: rgba(34,201,138,.15);  color: var(--green); }
+.badge-asset { background: rgba(124,106,247,.15); color: var(--accent); }
+.badge-other { background: rgba(96,96,136,.15);   color: var(--soft); }
+
+/* ── Inputs ───────────────────────────────────────────────────────────── */
+.form-group { margin-bottom: 12px; }
+.form-label {
+  display: block; font-size: 11px; font-weight: 500;
+  color: var(--soft); margin-bottom: 5px;
+  font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em;
+}
+.form-input {
+  width: 100%; height: 36px; padding: 0 10px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 7px; color: var(--text);
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+}
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124,106,247,.12);
+}
+.form-input::placeholder { color: var(--muted); }
+
+/* ── Button ───────────────────────────────────────────────────────────── */
+.btn-primary {
+  width: 100%; height: 40px;
+  background: linear-gradient(135deg, var(--accent), #6054d4);
+  border: none; border-radius: 8px;
+  color: #fff; font-size: 13px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 7px;
+  transition: opacity .15s, transform .1s;
+  letter-spacing: -0.2px;
+}
+.btn-primary:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+.btn-ghost {
+  height: 32px; padding: 0 12px;
+  background: none; border: 1px solid var(--border2);
+  border-radius: 6px; color: var(--soft); font-size: 12px;
+  cursor: pointer; transition: all .15s;
+}
+.btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+
+.btn-danger {
+  height: 28px; padding: 0 10px;
+  background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
+  border-radius: 6px; color: var(--red); font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer; display: flex; align-items: center; gap: 5px;
+  transition: all .15s;
+}
+.btn-danger:hover { background: rgba(239,68,68,.15); }
+
+/* ── Divider ──────────────────────────────────────────────────────────── */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* ── Status cards ─────────────────────────────────────────────────────── */
+.stat-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; text-align: center;
+}
+.stat-val { font-size: 20px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.stat-lbl { font-size: 10px; color: var(--soft); margin-top: 2px; }
+
+/* progress bar */
+.prog-wrap { margin-bottom: 16px; }
+.prog-header {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--soft); margin-bottom: 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.prog-track {
+  height: 4px; background: var(--border);
+  border-radius: 9999px; overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  border-radius: 9999px; transition: width 0.6s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Complete / Error sections ────────────────────────────────────────── */
+.complete-card {
+  border: 1px solid rgba(34,201,138,.25); border-radius: 10px;
+  background: rgba(34,201,138,.05); padding: 20px; text-align: center;
+}
+.error-card {
+  border: 1px solid rgba(239,68,68,.25); border-radius: 10px;
+  background: rgba(239,68,68,.05); padding: 20px; text-align: center;
+}
+
+.download-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 38px; padding: 0 20px;
+  background: var(--green); border-radius: 7px;
+  color: #000; font-size: 13px; font-weight: 700;
+  text-decoration: none; transition: opacity .15s;
+  margin-top: 14px;
+}
+.download-btn:hover { opacity: .88; }
+
+/* ── Right Panel ──────────────────────────────────────────────────────── */
+#right-panel {
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--bg);
+}
+
+#right-header {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px; height: 46px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(13,13,20,0.8);
+}
+#right-header-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; color: var(--soft);
+}
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); flex-shrink: 0;
+}
+.live-dot.idle   { background: var(--muted); animation: none; }
+.live-dot.active { animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── Agent output stream ──────────────────────────────────────────────── */
+#agent-output {
+  flex: 1; overflow-y: auto; padding: 20px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+
+/* Empty state */
+.empty-state {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px;
+  color: var(--muted);
+}
+.empty-icon { font-size: 40px; opacity: .5; }
+.empty-text { font-size: 13px; }
+
+/* ── Message bubbles ──────────────────────────────────────────────────── */
+.msg {
+  display: flex; flex-direction: column; gap: 2px;
+  animation: fadein .18s ease-out both;
+  max-width: 100%;
+}
+@keyframes fadein { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+.msg-header {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 10px; color: var(--soft);
+  font-family: 'JetBrains Mono', monospace;
+  padding: 0 2px;
+}
+.msg-node  { font-weight: 600; }
+.msg-time  { color: var(--muted); }
+.msg-status-dot {
+  width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* plain text message */
+.msg-text {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 13px;
+  font-size: 12.5px; line-height: 1.6;
+  color: var(--text); word-break: break-word;
+  font-family: 'JetBrains Mono', monospace;
+}
+.msg-text.ok      { border-left: 2px solid var(--green); }
+.msg-text.error   { border-left: 2px solid var(--red);   color: var(--red); }
+.msg-text.warning { border-left: 2px solid var(--amber);  color: var(--amber); }
+.msg-text.running { border-left: 2px solid var(--accent); }
+.msg-text.done    { border-left: 2px solid var(--green);  color: var(--green); }
+.msg-text.system  { border-left: 2px solid var(--blue);   color: var(--blue); }
+
+/* ── Code blocks ──────────────────────────────────────────────────────── */
+.code-block {
+  border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+  background: #0e0e1a;
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 14px;
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+}
+.code-lang {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  font-weight: 600; color: var(--soft); text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.code-copy {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--soft); background: none; border: none;
+  cursor: pointer; padding: 2px 6px; border-radius: 4px;
+  transition: color .15s, background .15s;
+}
+.code-copy:hover { color: var(--text); background: var(--border2); }
+.code-body {
+  overflow-x: auto; padding: 14px 16px;
+}
+.code-body pre { margin: 0; font-size: 12px; line-height: 1.65; }
+.code-body code { font-family: 'JetBrains Mono', monospace; background: none !important; padding: 0 !important; }
+
+/* hljs override */
+.hljs { background: transparent !important; padding: 0 !important; }
+
+/* ── Thinking block ───────────────────────────────────────────────────── */
+.thinking-block {
+  border: 1px solid rgba(124,106,247,.2); border-radius: 10px;
+  background: rgba(124,106,247,.04); overflow: hidden;
+}
+.thinking-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 14px; border-bottom: 1px solid rgba(124,106,247,.1);
+  font-size: 10px; font-family: 'JetBrains Mono', monospace;
+  color: rgba(124,106,247,.7);
+}
+.thinking-header-left { display: flex; align-items: center; gap: 7px; }
+.thinking-pulse {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); animation: pulse 1s ease-in-out infinite;
+}
+.thinking-text {
+  padding: 12px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; line-height: 1.7; color: rgba(160,160,200,.75);
+  white-space: pre-wrap; word-break: break-word;
+  max-height: 300px; overflow-y: auto;
+}
+.thinking-toggle {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--accent); background: none; border: none;
+  cursor: pointer; opacity: .7;
+}
+.thinking-toggle:hover { opacity: 1; }
+
+/* ── Tool call pill ───────────────────────────────────────────────────── */
+.tool-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 6px;
+  border: 1px solid var(--border2); background: var(--surface);
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--soft); max-width: 100%;
+}
+.tool-pill-icon { color: var(--accent); }
+.tool-pill-name { color: var(--text); font-weight: 500; }
+.tool-pill-args { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+
+/* utility */
+.hidden { display: none !important; }
+.flex-1 { flex: 1; }
+.text-green  { color: var(--green); }
+.text-red    { color: var(--red); }
+.text-amber  { color: var(--amber); }
+.text-accent { color: var(--accent); }
+.text-dim    { color: var(--soft); }
+
+.spin {
+  animation: spin .8s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Token display */
+.token-badge {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+}
+.token-badge.hidden { display: none; }
+.token-in   { color: var(--accent); }
+.token-out  { color: var(--green); }
+.token-total { color: var(--text); font-weight: 600; }
+.token-cost { color: var(--amber); font-weight: 600; }
 </style>
 </head>
 <body>
 
-<!-- ── Header ─────────────────────────────────────────────────────────── -->
-<header class="border-b border-border relative z-10">
-  <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded border border-accent/40 bg-accent/10 flex items-center justify-center">
-        <svg class="w-4 h-4 text-accent" viewBox="0 0 16 16" fill="none">
-          <rect x="1" y="1" width="6" height="6" rx="1" fill="currentColor" opacity="0.9"/>
-          <rect x="9" y="1" width="6" height="6" rx="1" fill="currentColor" opacity="0.4"/>
-          <rect x="1" y="9" width="6" height="6" rx="1" fill="currentColor" opacity="0.4"/>
-          <rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" opacity="0.7"/>
-        </svg>
-      </div>
-      <div>
-        <h1 class="text-sm font-700 tracking-tight leading-none">WP Theme Agent</h1>
-        <p class="text-[10px] text-dim font-mono mt-0.5">HTML → WordPress · _s base theme</p>
-      </div>
+<!-- ── Header ──────────────────────────────────────────────────────────── -->
+<header id="header">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <div class="logo-text">WP Theme Agent</div>
+      <div class="logo-sub">HTML → WordPress · _s base theme</div>
     </div>
-    <span class="font-mono text-[10px] text-dim border border-border px-2 py-1 rounded">v0.3.0</span>
+  </div>
+  <div class="header-right">
+    <span class="badge">v0.3.0</span>
   </div>
 </header>
 
-<!-- ── Main ───────────────────────────────────────────────────────────── -->
-<main class="max-w-4xl mx-auto px-6 py-12 w-full">
+<!-- ── Layout ─────────────────────────────────────────────────────────── -->
+<div id="layout">
 
-  <!-- ── Step 1: Upload ──────────────────────────────────────────────── -->
-  <section id="step-upload" class="section-enter">
+  <!-- ─── LEFT PANEL ──────────────────────────────────────────────────── -->
+  <div id="left-panel">
+    <div id="left-scroll">
 
-    <div class="mb-8">
-      <h2 class="text-3xl font-800 tracking-tight mb-2">
-        Upload your<br>
-        <span class="text-accent">website files</span>
-      </h2>
-      <p class="text-soft text-sm">Drop an entire site folder or individual files — multi-page supported.</p>
-    </div>
+      <!-- Step 1: Upload -->
+      <section id="sec-upload">
+        <div class="section-title">01 · Upload files</div>
 
-    <!-- Upload mode toggle -->
-    <div class="flex gap-2 mb-4">
-      <button id="btn-mode-files" onclick="setUploadMode('files')"
-              class="mode-btn active h-8 px-4 rounded text-xs font-mono border transition-all">
-        Files
-      </button>
-      <button id="btn-mode-folder" onclick="setUploadMode('folder')"
-              class="mode-btn h-8 px-4 rounded text-xs font-mono border transition-all">
-        Folder
-      </button>
-    </div>
+        <div class="mode-tabs">
+          <button class="mode-tab active" id="tab-files" onclick="setMode('files')">Files</button>
+          <button class="mode-tab"        id="tab-folder" onclick="setMode('folder')">Folder</button>
+        </div>
 
-    <!-- Drop zone -->
-    <div id="drop-zone"
-         class="drop-zone border border-dashed border-muted rounded-lg p-12 text-center cursor-pointer relative"
-         onclick="document.getElementById('file-input').click()">
+        <div class="drop-zone" id="drop-zone" onclick="triggerUpload()">
+          <input type="file" id="file-input" multiple class="hidden"
+                 accept=".html,.htm,.css,.js,.png,.jpg,.jpeg,.gif,.webp,.ico,.svg,.woff,.woff2,.ttf,.otf">
+          <input type="file" id="folder-input" webkitdirectory multiple class="hidden">
+          <div class="drop-zone-icon">📂</div>
+          <div class="drop-label" id="drop-label">Click or drag files here</div>
+          <div class="drop-sub">.html · .css · .js · images · fonts</div>
+        </div>
 
-      <!-- Hidden inputs — swapped by mode toggle -->
-      <input type="file" id="file-input" multiple
-             accept=".html,.htm,.css,.js,.png,.jpg,.jpeg,.gif,.webp,.ico,.svg,.woff,.woff2,.ttf,.otf"
-             class="hidden">
-      <input type="file" id="folder-input" webkitdirectory multiple class="hidden"
-             onchange="handleFiles(this.files)">
+        <!-- File tree -->
+        <div id="file-tree-wrap" class="hidden">
+          <div class="file-tree">
+            <div class="file-tree-header">
+              <span id="fc-label" style="font-family:'JetBrains Mono',monospace;font-size:11px"></span>
+              <button class="btn-ghost" style="height:22px;font-size:10px;padding:0 8px" onclick="clearFiles()">clear</button>
+            </div>
+            <div class="file-tree-body" id="file-items"></div>
+          </div>
+        </div>
+      </section>
 
-      <div class="flex flex-col items-center gap-3">
-        <div class="w-12 h-12 rounded-lg border border-border bg-surface flex items-center justify-center">
-          <svg class="w-5 h-5 text-dim" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+      <!-- Step 2: Configure (shown after upload) -->
+      <section id="sec-config" class="hidden">
+        <div class="divider"></div>
+        <div class="section-title">02 · Theme details</div>
+
+        <div class="form-group">
+          <label class="form-label">Theme Name</label>
+          <input type="text" id="theme-name" class="form-input" placeholder="My Business Theme">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Theme Slug</label>
+          <input type="text" id="theme-slug" class="form-input" placeholder="my-business-theme">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Author</label>
+          <input type="text" id="theme-author" class="form-input" placeholder="Your Name">
+        </div>
+
+        <button class="btn-primary" id="btn-convert">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/>
           </svg>
-        </div>
-        <div>
-          <p id="drop-label" class="text-sm font-500 text-text">Click or drag files here</p>
-          <p class="text-xs text-dim mt-1 font-mono">.html · .css · .js · .png · .jpg · .svg · .woff</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- File tree panel -->
-    <div id="file-tree-panel" class="mt-4 hidden">
-      <div class="flex items-center justify-between mb-2">
-        <div class="flex items-center gap-3">
-          <span id="file-count" class="text-xs font-mono text-dim">0 files</span>
-          <div id="type-summary" class="flex gap-1.5"></div>
-        </div>
-        <button id="clear-files" class="text-xs text-dim hover:text-soft transition-colors font-mono">clear</button>
-      </div>
-
-      <!-- Grouped file tree -->
-      <div id="file-items" class="border border-border rounded-lg bg-surface overflow-hidden divide-y divide-border/50"></div>
-    </div>
-
-    <!-- Page → template mapping (shown after upload analysis) -->
-    <div id="page-map-panel" class="mt-4 hidden">
-      <div class="rounded-lg border border-accent/20 bg-accent/5 p-4">
-        <div class="flex items-center gap-2 mb-3">
-          <svg class="w-3.5 h-3.5 text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"/>
-          </svg>
-          <span class="text-[11px] font-mono text-accent/80 uppercase tracking-wider">Detected pages → WP templates</span>
-        </div>
-        <div id="page-map-rows" class="space-y-1.5"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Step 2: Configure ───────────────────────────────────────────── -->
-  <section id="step-config" class="mt-10 hidden section-enter">
-
-    <div class="w-full h-px bg-border mb-10"></div>
-    <h3 class="text-lg font-600 mb-5">Theme details</h3>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="space-y-1.5">
-        <label class="text-xs font-mono text-dim uppercase tracking-wider">Theme name</label>
-        <input type="text" id="theme-name" placeholder="My Business Theme"
-               class="w-full h-10 rounded border border-border bg-surface px-3 text-sm text-text placeholder:text-muted font-mono transition-all">
-      </div>
-      <div class="space-y-1.5">
-        <label class="text-xs font-mono text-dim uppercase tracking-wider">Theme slug</label>
-        <input type="text" id="theme-slug" placeholder="my-business-theme"
-               class="w-full h-10 rounded border border-border bg-surface px-3 text-sm text-text placeholder:text-muted font-mono transition-all">
-      </div>
-      <div class="space-y-1.5">
-        <label class="text-xs font-mono text-dim uppercase tracking-wider">Author</label>
-        <input type="text" id="theme-author" placeholder="Your Name"
-               class="w-full h-10 rounded border border-border bg-surface px-3 text-sm text-text placeholder:text-muted font-mono transition-all">
-      </div>
-    </div>
-
-    <button id="btn-convert"
-            class="mt-6 inline-flex items-center gap-2 h-10 px-6 rounded bg-accent hover:bg-accent/90 text-white text-sm font-600 transition-colors disabled:opacity-40 disabled:pointer-events-none">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/>
-      </svg>
-      Generate theme
-    </button>
-  </section>
-
-  <!-- ── Step 3: Converting ──────────────────────────────────────────── -->
-  <section id="step-progress" class="mt-10 hidden section-enter">
-
-    <div class="w-full h-px bg-border mb-10"></div>
-
-    <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-3">
-        <div class="relative w-3 h-3">
-          <div class="absolute inset-0 rounded-full bg-accent animate-ping opacity-60"></div>
-          <div class="relative rounded-full w-3 h-3 bg-accent"></div>
-        </div>
-        <h3 id="progress-label" class="text-lg font-600">Generating theme</h3>
-      </div>
-      <button id="btn-stop"
-              class="inline-flex items-center gap-1.5 h-8 px-3 rounded border border-red/30 text-red text-xs font-mono hover:bg-red/10 transition-colors">
-        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
-        stop
-      </button>
-    </div>
-
-    <!-- Progress bar -->
-    <div class="mb-6">
-      <div class="flex items-center justify-between mb-1.5">
-        <span class="text-xs font-mono text-dim">progress</span>
-        <span id="progress-pct" class="text-xs font-mono text-dim">0%</span>
-      </div>
-      <div class="h-1.5 bg-surface rounded-full border border-border overflow-hidden">
-        <div id="progress-bar" class="progress-fill" style="width:0%"></div>
-      </div>
-    </div>
-
-    <!-- Four-panel grid: files written, copied, lint, actions -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-
-      <!-- Files written / copied -->
-      <div class="rounded-lg border border-border bg-surface overflow-hidden">
-        <div class="px-4 py-2.5 border-b border-border flex items-center justify-between">
-          <span class="text-[10px] font-mono text-dim uppercase tracking-widest">Files written / copied</span>
-          <span id="files-written-count" class="text-[10px] font-mono text-dim">0</span>
-        </div>
-        <div id="files-written" class="p-3 space-y-1 min-h-[100px] max-h-44 overflow-y-auto"></div>
-      </div>
-
-      <!-- PHP lint -->
-      <div class="rounded-lg border border-border bg-surface overflow-hidden">
-        <div class="px-4 py-2.5 border-b border-border flex items-center justify-between">
-          <span class="text-[10px] font-mono text-dim uppercase tracking-widest">PHP lint</span>
-          <span id="lint-count" class="text-[10px] font-mono text-dim">0 checked</span>
-        </div>
-        <div id="lint-results" class="p-3 space-y-1 min-h-[100px] max-h-44 overflow-y-auto"></div>
-      </div>
-    </div>
-
-    <!-- Search / copy operations -->
-    <div class="rounded-lg border border-border bg-surface overflow-hidden mb-4">
-      <div class="px-4 py-2.5 border-b border-border flex items-center justify-between">
-        <span class="text-[10px] font-mono text-dim uppercase tracking-widest">Search &amp; Copy ops</span>
-        <span id="ops-count" class="text-[10px] font-mono text-dim">0</span>
-      </div>
-      <div id="ops-list" class="p-3 space-y-1 min-h-[60px] max-h-36 overflow-y-auto font-mono text-[11px]"></div>
-    </div>
-
-    <!-- Agent thinking -->
-    <div class="rounded-lg border border-accent/20 bg-accent/5 overflow-hidden mb-4">
-      <div class="px-4 py-2.5 border-b border-accent/20 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></div>
-          <span class="text-[10px] font-mono text-accent/70 uppercase tracking-widest">Agent thinking</span>
-        </div>
-        <button id="clear-thinking" class="text-[10px] font-mono text-dim hover:text-soft transition-colors">clear</button>
-      </div>
-      <div class="p-4 max-h-48 overflow-y-auto">
-        <div id="thinking-text">Waiting for agent...</div>
-      </div>
-    </div>
-
-    <!-- Event log -->
-    <div class="rounded-lg border border-border bg-surface overflow-hidden">
-      <div class="px-4 py-2.5 border-b border-border flex items-center justify-between">
-        <span class="text-[10px] font-mono text-dim uppercase tracking-widest">Event log</span>
-        <span id="event-count" class="text-[10px] font-mono text-dim">0 events</span>
-      </div>
-      <div id="log-container" class="p-3 space-y-px max-h-52 overflow-y-auto font-mono text-[11px]"></div>
-    </div>
-  </section>
-
-  <!-- ── Step 4: Complete ────────────────────────────────────────────── -->
-  <section id="step-complete" class="mt-10 hidden section-enter">
-    <div class="rounded-lg border border-green/30 bg-green/5 p-10 text-center glow-green relative bracket">
-      <div class="w-14 h-14 rounded-full border border-green/30 bg-green/10 flex items-center justify-center mx-auto mb-4">
-        <svg class="w-7 h-7 text-green" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
-        </svg>
-      </div>
-      <h2 class="text-2xl font-700 mb-2">Theme ready</h2>
-      <p class="text-sm text-soft mb-1">Your WordPress theme has been generated and packaged.</p>
-      <p id="complete-summary" class="text-xs font-mono text-dim mb-8"></p>
-
-      <div class="flex items-center justify-center gap-3 flex-wrap">
-        <a id="btn-download" href="#"
-           class="inline-flex items-center gap-2 h-10 px-6 rounded bg-green hover:bg-green/90 text-bg text-sm font-600 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
-          </svg>
-          Download ZIP
-        </a>
-        <div class="text-xs font-mono text-dim text-left bg-surface/80 border border-border rounded px-4 py-2">
-          WP Admin → Appearance → Themes → Upload ZIP → Activate
-        </div>
-        <button id="btn-restart"
-                class="inline-flex items-center gap-2 h-10 px-4 rounded border border-border text-soft text-sm font-500 hover:border-muted transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/>
-          </svg>
-          Start over
+          Generate Theme
         </button>
+      </section>
+
+      <!-- Step 3: Progress (shown while running) -->
+      <section id="sec-progress" class="hidden">
+        <div class="divider"></div>
+        <div class="section-title">03 · Progress</div>
+
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="stat-val text-green" id="s-files">0</div>
+            <div class="stat-lbl">files written</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val text-accent" id="s-lint">0</div>
+            <div class="stat-lbl">lint checks</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val text-dim" id="s-events">0</div>
+            <div class="stat-lbl">events</div>
+          </div>
+        </div>
+
+        <div class="prog-wrap">
+          <div class="prog-header">
+            <span id="prog-label">Working…</span>
+            <span id="prog-pct">0%</span>
+          </div>
+          <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        </div>
+
+        <button class="btn-danger" id="btn-stop" style="width:100%;justify-content:center">
+          <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+          Stop generation
+        </button>
+      </section>
+
+      <!-- Step 4: Complete -->
+      <section id="sec-complete" class="hidden">
+        <div class="divider"></div>
+        <div class="complete-card">
+          <div style="font-size:32px;margin-bottom:10px">✅</div>
+          <div style="font-size:15px;font-weight:700;margin-bottom:4px">Theme ready!</div>
+          <div id="complete-summary" style="font-size:11px;color:var(--soft);font-family:'JetBrains Mono',monospace;margin-bottom:14px"></div>
+          <a id="btn-download" href="#" class="download-btn">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+            </svg>
+            Download ZIP
+          </a><br>
+          <button class="btn-ghost" onclick="location.reload()" style="margin-top:10px">Start over</button>
+        </div>
+      </section>
+
+      <!-- Step 5: Error -->
+      <section id="sec-error" class="hidden">
+        <div class="divider"></div>
+        <div class="error-card">
+          <div style="font-size:28px;margin-bottom:8px">⚠️</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:6px">Generation failed</div>
+          <div id="error-msg" style="font-size:11px;color:var(--soft);font-family:'JetBrains Mono',monospace;word-break:break-all"></div>
+          <button class="btn-ghost" onclick="hideError()" style="margin-top:12px">Try again</button>
+        </div>
+      </section>
+
+    </div><!-- /left-scroll -->
+  </div><!-- /left-panel -->
+
+  <!-- ─── RIGHT PANEL ─────────────────────────────────────────────────── -->
+  <div id="right-panel">
+    <div id="right-header">
+      <div id="right-header-title">
+        <div class="live-dot idle" id="live-dot"></div>
+        <span id="right-title">Agent Output</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span id="right-event-count" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--soft)">0 events</span>
+        <span id="token-display" class="token-badge hidden">
+          <span class="token-in">In: <span id="tok-in">0</span></span>
+          <span class="token-out">Out: <span id="tok-out">0</span></span>
+          <span class="token-total">Total: <span id="tok-total">0</span></span>
+          <span class="token-cost">$<span id="tok-cost">0.00</span></span>
+        </span>
+        <button class="btn-ghost" style="height:26px;font-size:11px;padding:0 10px" onclick="clearOutput()">Clear</button>
       </div>
     </div>
-  </section>
 
-  <!-- ── Step 5: Error ───────────────────────────────────────────────── -->
-  <section id="step-error" class="mt-10 hidden section-enter">
-    <div class="rounded-lg border border-red/30 bg-red/5 p-8 text-center">
-      <div class="w-12 h-12 rounded-full border border-red/30 bg-red/10 flex items-center justify-center mx-auto mb-3">
-        <svg class="w-6 h-6 text-red" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
-        </svg>
+    <div id="agent-output">
+      <!-- Empty state -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">🤖</div>
+        <div class="empty-text">Agent output will stream here in real-time</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">Upload files → configure → generate</div>
       </div>
-      <h2 class="text-lg font-600 mb-2">Generation failed</h2>
-      <p id="error-message" class="text-sm text-soft font-mono mb-5"></p>
-      <button id="btn-retry"
-              class="inline-flex items-center gap-2 h-9 px-5 rounded border border-border text-soft text-sm hover:border-muted transition-colors">
-        Try again
-      </button>
     </div>
-  </section>
-
-</main>
-
-<!-- ── Footer ─────────────────────────────────────────────────────────── -->
-<footer class="border-t border-border relative z-10 mt-20">
-  <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-    <span class="text-[10px] font-mono text-dim">FastAPI + Fireworks AI · _s base theme</span>
-    <span class="text-[10px] font-mono text-dim">WP Theme Agent v0.3.0</span>
-  </div>
-</footer>
+  </div><!-- /right-panel -->
+</div><!-- /layout -->
 
 <script>
-// ── State ──────────────────────────────────────────────────────────────
-const API = '/api';
-let sessionId     = null;
-let uploadedFiles = [];
-let pageMap       = {};   // { filename: role } from server
-let eventCount    = 0;
-let filesWritten  = 0;
-let lintChecked   = 0;
-let opsCount      = 0;
-let progressPct   = 0;
-let thinkingBuf   = '';
-let uploadMode    = 'files';  // 'files' | 'folder'
+// ── State ────────────────────────────────────────────────────────────────
+const API        = '/api';
+let sessionId    = null;
+let uploadFiles  = [];
+let uploadMode   = 'files';
+let eventCount   = 0;
+let filesWritten = 0;
+let lintCount    = 0;
+let progressPct  = 0;
+let thinkingBuf  = '';
+let thinkingEl   = null;
 
-// ── DOM ────────────────────────────────────────────────────────────────
+// ── DOM helpers ──────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
-const dropZone       = $('drop-zone');
-const fileInput      = $('file-input');
-const folderInput    = $('folder-input');
-const fileTreePanel  = $('file-tree-panel');
-const fileItems      = $('file-items');
-const fileCountEl    = $('file-count');
-const typeSummary    = $('type-summary');
-const clearFilesBtn  = $('clear-files');
-const pageMapPanel   = $('page-map-panel');
-const pageMapRows    = $('page-map-rows');
-const stepConfig     = $('step-config');
-const stepProgress   = $('step-progress');
-const stepComplete   = $('step-complete');
-const stepError      = $('step-error');
-const btnConvert     = $('btn-convert');
-const btnDownload    = $('btn-download');
-const btnRestart     = $('btn-restart');
-const btnRetry       = $('btn-retry');
-const btnStop        = $('btn-stop');
-const logContainer   = $('log-container');
-const eventCountEl   = $('event-count');
-const errorMsg       = $('error-message');
-const filesWrittenEl = $('files-written');
-const filesWrittenCount = $('files-written-count');
-const lintResultsEl  = $('lint-results');
-const lintCountEl    = $('lint-count');
-const opsList        = $('ops-list');
-const opsCountEl     = $('ops-count');
-const thinkingTextEl = $('thinking-text');
-const progressBar    = $('progress-bar');
-const progressPctEl  = $('progress-pct');
-const progressLabel  = $('progress-label');
+const dropZone      = $('drop-zone');
+const fileInput     = $('file-input');
+const folderInput   = $('folder-input');
+const agentOutput   = $('agent-output');
+const emptyState    = $('empty-state');
 
-// ── Upload mode toggle ─────────────────────────────────────────────────
-function setUploadMode(mode) {
+// ── Upload mode ──────────────────────────────────────────────────────────
+function setMode(mode) {
   uploadMode = mode;
-  const activeClass  = 'border-accent text-accent bg-accent/10';
-  const normalClass  = 'border-border text-dim hover:border-muted hover:text-soft';
-  const btnFiles   = $('btn-mode-files');
-  const btnFolder  = $('btn-mode-folder');
-  if (mode === 'files') {
-    btnFiles.className  = `mode-btn h-8 px-4 rounded text-xs font-mono border transition-all ${activeClass}`;
-    btnFolder.className = `mode-btn h-8 px-4 rounded text-xs font-mono border transition-all ${normalClass}`;
-    $('drop-label').textContent = 'Click or drag files here';
-    dropZone.onclick = () => fileInput.click();
-  } else {
-    btnFolder.className = `mode-btn h-8 px-4 rounded text-xs font-mono border transition-all ${activeClass}`;
-    btnFiles.className  = `mode-btn h-8 px-4 rounded text-xs font-mono border transition-all ${normalClass}`;
-    $('drop-label').textContent = 'Click to select a folder';
-    dropZone.onclick = () => folderInput.click();
-  }
+  $('tab-files').classList.toggle('active', mode === 'files');
+  $('tab-folder').classList.toggle('active', mode === 'folder');
+  $('drop-label').textContent = mode === 'files' ? 'Click or drag files here' : 'Click to select a folder';
 }
-// Init
-setUploadMode('files');
 
-// ── Drag & drop ────────────────────────────────────────────────────────
+function triggerUpload() {
+  if (uploadMode === 'folder') folderInput.click();
+  else fileInput.click();
+}
+
+// ── Drag & drop ──────────────────────────────────────────────────────────
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('active'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault(); dropZone.classList.remove('active');
-  handleFiles(e.dataTransfer.files);
-});
-fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('active'); addFiles(e.dataTransfer.files); });
+fileInput.addEventListener('change', () => addFiles(fileInput.files));
+folderInput.addEventListener('change', () => addFiles(folderInput.files));
 
-// ── Handle files ───────────────────────────────────────────────────────
-const ALLOWED_EXTS = ['.html','.htm','.css','.js','.png','.jpg','.jpeg','.gif','.webp','.ico','.svg','.woff','.woff2','.ttf','.otf'];
+const ALLOWED = ['.html','.htm','.css','.js','.png','.jpg','.jpeg','.gif','.webp','.ico','.svg','.woff','.woff2','.ttf','.otf'];
 
-function handleFiles(files) {
-  const next = Array.from(files).filter(f => {
-    const ext = '.' + (f.name.split('.').pop() || '').toLowerCase();
-    return ALLOWED_EXTS.includes(ext);
-  });
-  if (!next.length) return;
-  uploadedFiles = [...uploadedFiles, ...next];
-  renderFileTree();
-  stepConfig.classList.remove('hidden');
-}
-
-// ── File type helpers ──────────────────────────────────────────────────
 function getType(name) {
   const ext = '.' + (name.split('.').pop() || '').toLowerCase();
   if (['.html','.htm'].includes(ext)) return 'html';
@@ -519,151 +698,87 @@ function getType(name) {
   return 'other';
 }
 
-const TYPE_LABELS  = { html:'HTML', css:'CSS', js:'JS', image:'Image', asset:'Asset', other:'Other' };
-const TYPE_COLORS  = { html:'badge-html', css:'badge-css', js:'badge-js', image:'badge-image', asset:'badge-asset', other:'badge-other' };
-const ROLE_TO_TEMPLATE = {
-  home:'front-page.php', about:'page-about.php', contact:'page-contact.php',
-  services:'page-services.php', portfolio:'page-portfolio.php',
-  blog:'home.php', '404':'404.php', search:'search.php',
-  privacy:'page-privacy.php', terms:'page-terms.php', page:'page-{slug}.php'
-};
+function addFiles(files) {
+  const next = Array.from(files).filter(f => ALLOWED.includes('.' + (f.name.split('.').pop()||'').toLowerCase()));
+  if (!next.length) return;
+  uploadFiles = [...uploadFiles, ...next];
+  renderTree();
+  $('sec-config').classList.remove('hidden');
+}
 
-// ── Render file tree ───────────────────────────────────────────────────
-function renderFileTree() {
-  fileTreePanel.classList.remove('hidden');
+function clearFiles() {
+  uploadFiles = [];
+  $('file-tree-wrap').classList.add('hidden');
+  $('sec-config').classList.add('hidden');
+  fileInput.value = ''; folderInput.value = '';
+}
 
-  // Count by type
-  const counts = {};
-  uploadedFiles.forEach(f => { const t = getType(f.name); counts[t] = (counts[t]||0)+1; });
+const TYPE_LABELS = { html:'HTML', css:'CSS', js:'JS', image:'IMG', asset:'ASSET', other:'FILE' };
+const TYPE_COLORS = { html:'badge-html', css:'badge-css', js:'badge-js', image:'badge-image', asset:'badge-asset', other:'badge-other' };
 
-  fileCountEl.textContent = `${uploadedFiles.length} file${uploadedFiles.length !== 1 ? 's' : ''}`;
-  typeSummary.innerHTML = Object.entries(counts).map(([t, n]) =>
-    `<span class="type-badge ${TYPE_COLORS[t]}">${n} ${TYPE_LABELS[t]}</span>`
-  ).join('');
-
-  // Group files by type
+function renderTree() {
+  $('file-tree-wrap').classList.remove('hidden');
+  $('fc-label').textContent = `${uploadFiles.length} file${uploadFiles.length !== 1 ? 's' : ''} selected`;
   const groups = {};
-  uploadedFiles.forEach((f,i) => { const t = getType(f.name); (groups[t]||(groups[t]=[])).push({f,i}); });
-
-  const typeOrder = ['html','css','js','image','asset','other'];
-  fileItems.innerHTML = typeOrder.filter(t => groups[t]).map(type => {
-    const rows = groups[type].map(({f,i}) => {
+  uploadFiles.forEach((f, i) => { const t = getType(f.name); (groups[t] = groups[t]||[]).push({f,i}); });
+  const order = ['html','css','js','image','asset','other'];
+  $('file-items').innerHTML = order.filter(t => groups[t]).flatMap(t =>
+    groups[t].map(({f,i}) => {
       const kb = f.size < 1024 ? `${f.size}B` : `${(f.size/1024).toFixed(1)}KB`;
-      const displayName = f.webkitRelativePath || f.name;
-      return `<div class="flex items-center justify-between px-3 py-1.5 hover:bg-border/30 transition-colors group">
-        <div class="flex items-center gap-2 min-w-0">
-          <span class="type-badge ${TYPE_COLORS[type]} flex-shrink-0">${TYPE_LABELS[type]}</span>
-          <span class="text-sm text-text truncate font-mono">${escHtml(displayName)}</span>
-          <span class="text-[10px] font-mono text-muted flex-shrink-0">${kb}</span>
-        </div>
-        <button onclick="removeFile(${i})" class="text-muted hover:text-red transition-colors opacity-0 group-hover:opacity-100 font-mono text-xs ml-2 flex-shrink-0">✕</button>
+      const name = f.webkitRelativePath || f.name;
+      return `<div class="file-row">
+        <span class="type-badge ${TYPE_COLORS[t]}">${TYPE_LABELS[t]}</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--text)">${esc(name)}</span>
+        <span style="font-size:10px;color:var(--muted);flex-shrink:0">${kb}</span>
       </div>`;
-    }).join('');
-    return `<div>
-      <div class="px-3 py-1 bg-surface/50 border-b border-border/50 text-[10px] font-mono text-dim uppercase tracking-widest">
-        ${TYPE_LABELS[type]} files
-      </div>
-      ${rows}
-    </div>`;
-  }).join('');
-
-  // Show page map for HTML pages
-  const htmlFiles = uploadedFiles.filter(f => getType(f.name) === 'html');
-  if (htmlFiles.length > 0) {
-    pageMapPanel.classList.remove('hidden');
-    pageMapRows.innerHTML = htmlFiles.map(f => {
-      const name = f.name;
-      const stem = name.split('.')[0].toLowerCase();
-      let role = 'page';
-      const hints = { about:'about', contact:'contact', service:'services', home:'home', index:'home',
-                      portfolio:'portfolio', work:'portfolio', blog:'blog', news:'blog',
-                      '404':'404', search:'search', privacy:'privacy', terms:'terms' };
-      for (const [kw, r] of Object.entries(hints)) { if (stem.includes(kw)) { role = r; break; } }
-      const tpl = ROLE_TO_TEMPLATE[role] || 'page-{slug}.php';
-      const dispTpl = tpl === 'page-{slug}.php' ? `page-${stem}.php` : tpl;
-      return `<div class="flex items-center justify-between text-[11px] font-mono py-1">
-        <span class="text-soft">${escHtml(name)}</span>
-        <div class="flex items-center gap-2">
-          <span class="text-muted">→</span>
-          <span class="role-pill">${escHtml(dispTpl)}</span>
-        </div>
-      </div>`;
-    }).join('');
-  } else {
-    pageMapPanel.classList.add('hidden');
-  }
+    })
+  ).join('');
 }
 
-function removeFile(i) {
-  uploadedFiles.splice(i, 1);
-  if (!uploadedFiles.length) {
-    fileTreePanel.classList.add('hidden');
-    pageMapPanel.classList.add('hidden');
-    stepConfig.classList.add('hidden');
-  } else {
-    renderFileTree();
-  }
-}
-
-clearFilesBtn.addEventListener('click', () => {
-  uploadedFiles = [];
-  fileTreePanel.classList.add('hidden');
-  pageMapPanel.classList.add('hidden');
-  stepConfig.classList.add('hidden');
-  fileInput.value = '';
-  folderInput.value = '';
-});
-
-// Auto-slug
+// ── Auto-slug ────────────────────────────────────────────────────────────
 $('theme-name').addEventListener('input', e => {
   $('theme-slug').value = e.target.value.toLowerCase()
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 });
 
-// ── Convert ────────────────────────────────────────────────────────────
-btnConvert.addEventListener('click', async () => {
+// ── Convert ──────────────────────────────────────────────────────────────
+$('btn-convert').addEventListener('click', async () => {
   const name   = $('theme-name').value.trim();
   const slug   = $('theme-slug').value.trim();
   const author = $('theme-author').value.trim();
 
-  if (!name || !slug || !author) { alert('Please fill in all theme fields.'); return; }
-  if (!uploadedFiles.length)     { alert('Please upload at least one file.'); return; }
+  if (!name || !slug || !author) { alert('Fill in all theme fields.'); return; }
+  if (!uploadFiles.length) { alert('Please upload at least one file.'); return; }
   if (!/^[a-z0-9][a-z0-9\-]*[a-z0-9]$/.test(slug)) {
-    alert('Theme slug must be lowercase letters, numbers, and hyphens only.'); return;
+    alert('Slug must be lowercase letters, numbers, and hyphens only.'); return;
   }
 
-  btnConvert.disabled = true;
-  btnConvert.innerHTML = `<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 0115 0"/></svg> Uploading...`;
+  setBtnLoading($('btn-convert'), 'Uploading…');
 
-  // 1. Upload all files (including images/assets)
   const fd = new FormData();
-  uploadedFiles.forEach(f => fd.append('files', f, f.webkitRelativePath || f.name));
+  uploadFiles.forEach(f => fd.append('files', f, f.webkitRelativePath || f.name));
 
   try {
     const upRes = await fetch(`${API}/upload`, { method: 'POST', body: fd });
     if (!upRes.ok) { const e = await upRes.json(); throw new Error(e.detail || 'Upload failed'); }
-    const upData = await upRes.json();
-    sessionId = upData.session_id;
-    pageMap   = upData.page_map || {};
+    const up = await upRes.json();
+    sessionId = up.session_id;
 
-    // 2. Show progress panel
     resetProgress();
-    stepProgress.classList.remove('hidden');
+    $('sec-progress').classList.remove('hidden');
+    $('sec-complete').classList.add('hidden');
+    $('sec-error').classList.add('hidden');
+    setLive(true);
 
-    const summary = `${upData.text_count} text file(s), ${upData.asset_count} asset(s)` +
-      (upData.html_pages > 1 ? `, ${upData.html_pages} HTML pages detected` : '');
-    addLog('system', 'ok', `Uploaded — ${summary} — session ${sessionId.slice(0,8)}`);
-
-    // Show server-inferred page map in the log
-    if (Object.keys(pageMap).length > 0) {
-      Object.entries(pageMap).forEach(([file, role]) => {
-        addLog('system', 'ok', `Page map: ${file} → ${ROLE_TO_TEMPLATE[role] || 'page-'+role+'.php'}`);
-      });
+    emitMsg('system', 'ok', `Uploaded ${up.text_count} text + ${up.asset_count} assets · session ${sessionId.slice(0,8)}…`);
+    if (up.page_map) {
+      Object.entries(up.page_map).forEach(([f, r]) =>
+        emitMsg('system', 'ok', `Page map: ${f} → ${r}`)
+      );
     }
 
-    btnConvert.innerHTML = `<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 0115 0"/></svg> Converting...`;
+    setBtnLoading($('btn-convert'), 'Converting…');
 
-    // 3. Convert (SSE)
     const cvRes = await fetch(`${API}/convert`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -675,18 +790,28 @@ btnConvert.addEventListener('click', async () => {
 
   } catch (err) {
     showError(err.message);
+    resetBtn($('btn-convert'));
   }
 });
 
-// ── Stop ───────────────────────────────────────────────────────────────
-btnStop.addEventListener('click', async () => {
+function setBtnLoading(btn, label) {
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spin">↻</span> ${label}`;
+}
+function resetBtn(btn) {
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/></svg> Generate Theme`;
+}
+
+// ── Stop ────────────────────────────────────────────────────────────────
+$('btn-stop').addEventListener('click', async () => {
   if (!sessionId) return;
-  btnStop.disabled = true;
+  $('btn-stop').disabled = true;
   try { await fetch(`${API}/stop/${sessionId}`, { method: 'POST' }); } catch {}
-  addLog('system', 'warn', 'Stop signal sent');
+  emitMsg('system', 'warning', 'Stop signal sent');
 });
 
-// ── SSE stream ─────────────────────────────────────────────────────────
+// ── SSE stream ───────────────────────────────────────────────────────────
 async function processStream(reader) {
   const dec = new TextDecoder();
   let buf = '';
@@ -707,190 +832,301 @@ async function processStream(reader) {
   }
 }
 
-// ── Event handler ──────────────────────────────────────────────────────
+// ── Event handler ────────────────────────────────────────────────────────
 function handleEvent(ev) {
-  const { node, status, message, zip_url, thinking } = ev;
+  const { node, status, message, zip_url, thinking, usage, stats } = ev;
 
-  // Thinking tokens
+  // Handle token updates
+  if (node === 'token' && stats) {
+    updateTokenDisplay(stats);
+    return;
+  }
+
+  // Thinking tokens — append to streaming thinking block
   if (thinking) {
     thinkingBuf += thinking;
-    thinkingTextEl.textContent = thinkingBuf;
-    const c = thinkingTextEl.parentElement;
-    if (c) c.scrollTop = c.scrollHeight;
+    if (!thinkingEl) createThinkingBlock();
+    const body = thinkingEl.querySelector('.thinking-text');
+    if (body) { body.textContent = thinkingBuf; body.scrollTop = body.scrollHeight; }
   }
   if (!message && thinking) return;
 
-  // File written
-  if (node === 'agent' && status === 'complete' && message &&
-      (message.startsWith('Wrote ') || message.startsWith('Copied '))) {
-    addFileWritten(message);
+  // Finalize thinking block when a real message arrives
+  if (thinkingEl && message) {
+    thinkingEl.querySelector('.thinking-pulse').style.animation = 'none';
+    thinkingEl.querySelector('.thinking-pulse').style.background = 'var(--muted)';
+    thinkingEl = null; thinkingBuf = '';
   }
 
-  // Copy / search ops
-  const isOp = node === 'agent' && status === 'complete' && message && (
-    message.includes('Copied section') ||
-    message.includes('→') ||
-    message.startsWith('Copied asset')
-  );
-  if (isOp && !message.startsWith('Wrote ')) addOp(message);
+  // Map node+status to display class
+  let displayStatus = status;
+  if (status === 'complete' || status === 'passed') displayStatus = 'ok';
+  if (status === 'done') displayStatus = 'done';
 
-  // Lint
-  if (node === 'agent' && status === 'complete' && message && message.includes('no syntax errors'))
-    addLintResult(message, 'ok');
-  if (node === 'agent' && status === 'warning' && message && message.includes('lint error'))
-    addLintResult(message, 'error');
+  // Detect if the message contains a code block
+  if (message && message.includes('```')) {
+    renderCodeMessage(node, displayStatus, message);
+  } else if (message) {
+    // Detect tool call pattern: "Calling write_file(['path', 'content'])"
+    if (node === 'agent' && status === 'running' && message.startsWith('Calling ')) {
+      emitToolPill(message);
+    } else {
+      emitMsg(node, displayStatus, message);
+    }
+  }
+
+  // Stats
+  if (message) {
+    eventCount++;
+    $('s-events').textContent = eventCount;
+    $('right-event-count').textContent = `${eventCount} events`;
+  }
+  if (node === 'agent' && (status === 'complete') && message && (message.startsWith('Wrote ') || message.startsWith('Copied '))) {
+    filesWritten++; $('s-files').textContent = filesWritten;
+  }
+  if (message && message.includes('no syntax errors')) {
+    lintCount++; $('s-lint').textContent = lintCount;
+  }
 
   bumpProgress(node, status, message);
 
-  if (message) addLog(node, status, message);
-
-  if (node === 'pipeline' && status === 'done')
-    showComplete(zip_url || `/api/download/${sessionId}`);
-  else if (node === 'pipeline' && status === 'error')
-    showError(message);
+  if (node === 'pipeline' && status === 'done') showComplete(zip_url || `/api/download/${sessionId}`);
+  else if (node === 'pipeline' && status === 'error') showError(message);
   else if (node === 'pipeline' && status === 'stopped') {
-    progressLabel.textContent = 'Stopped';
-    addLog('system', 'warn', 'Session stopped');
+    $('prog-label').textContent = 'Stopped';
+    emitMsg('system', 'warning', 'Session stopped by user');
+    setLive(false);
   }
 }
 
-// ── Progress ───────────────────────────────────────────────────────────
-function bumpProgress(node, status, message) {
-  if (node === 'agent' && status === 'running' && (message||'').includes('write_file'))
-    setProgress(Math.min(progressPct + 12, 90));
-  if (node === 'agent' && status === 'complete' && (message||'').includes('Wrote '))
-    setProgress(Math.min(progressPct + 4, 92));
-  if (node === 'agent' && status === 'complete' && (message||'').includes('no syntax errors'))
-    setProgress(Math.min(progressPct + 2, 95));
-  if (node === 'pipeline' && status === 'done')
-    setProgress(100);
+// ── Output helpers ───────────────────────────────────────────────────────
+function updateTokenDisplay(stats) {
+  $('token-display').classList.remove('hidden');
+  $('tok-in').textContent = stats.prompt_tokens.toLocaleString();
+  $('tok-out').textContent = stats.completion_tokens.toLocaleString();
+  $('tok-total').textContent = stats.total_tokens.toLocaleString();
+  $('tok-cost').textContent = stats.total_cost.toFixed(4);
+}
+
+function clearOutput() {
+  agentOutput.innerHTML = '';
+  agentOutput.appendChild(emptyState);
+  emptyState.classList.remove('hidden');
+  eventCount = 0; $('s-events').textContent = 0;
+  $('right-event-count').textContent = '0 events';
+  $('token-display').classList.add('hidden');
+}
+
+function hideEmpty() { emptyState.classList.add('hidden'); }
+
+function emitMsg(node, status, text) {
+  hideEmpty();
+  const div = document.createElement('div');
+  div.className = 'msg';
+
+  const statusColors = { ok:'var(--green)', error:'var(--red)', warning:'var(--amber)', running:'var(--accent)', done:'var(--green)', system:'var(--blue)', heartbeat:'var(--muted)' };
+  const dotColor = statusColors[status] || 'var(--soft)';
+  const time = new Date().toLocaleTimeString('en-US', { hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit' });
+
+  div.innerHTML = `
+    <div class="msg-header">
+      <div class="msg-status-dot" style="background:${dotColor}"></div>
+      <span class="msg-node">${esc(node)}</span>
+      <span class="msg-time">${time}</span>
+    </div>
+    <div class="msg-text ${status || ''}">
+      ${esc(text)}
+    </div>`;
+  agentOutput.appendChild(div);
+  agentOutput.scrollTop = agentOutput.scrollHeight;
+}
+
+function emitToolPill(message) {
+  hideEmpty();
+  // Parse: "Calling write_file(['path'])"
+  const match = message.match(/^Calling (\w+)\((.+)?\)$/s);
+  const toolName = match ? match[1] : message;
+  const toolArgs = match ? match[2] : '';
+
+  const div = document.createElement('div');
+  div.className = 'msg';
+  const time = new Date().toLocaleTimeString('en-US', { hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  div.innerHTML = `
+    <div class="msg-header">
+      <div class="msg-status-dot" style="background:var(--accent)"></div>
+      <span class="msg-node">agent</span>
+      <span class="msg-time">${time}</span>
+    </div>
+    <div class="tool-pill">
+      <span class="tool-pill-icon">⚙</span>
+      <span class="tool-pill-name">${esc(toolName)}</span>
+      ${toolArgs ? `<span class="tool-pill-args">${esc(toolArgs.slice(0,120))}</span>` : ''}
+    </div>`;
+  agentOutput.appendChild(div);
+  agentOutput.scrollTop = agentOutput.scrollHeight;
+}
+
+function renderCodeMessage(node, status, rawText) {
+  hideEmpty();
+  const parts = splitCodeBlocks(rawText);
+  const div = document.createElement('div');
+  div.className = 'msg';
+  const time = new Date().toLocaleTimeString('en-US', { hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit' });
+
+  const statusColors = { ok:'var(--green)', error:'var(--red)', warning:'var(--amber)', running:'var(--accent)', done:'var(--green)', system:'var(--blue)' };
+  const dotColor = statusColors[status] || 'var(--soft)';
+
+  div.innerHTML = `<div class="msg-header">
+    <div class="msg-status-dot" style="background:${dotColor}"></div>
+    <span class="msg-node">${esc(node)}</span>
+    <span class="msg-time">${time}</span>
+  </div>`;
+
+  parts.forEach(part => {
+    if (part.type === 'text' && part.content.trim()) {
+      const t = document.createElement('div');
+      t.className = `msg-text ${status || ''}`;
+      t.textContent = part.content.trim();
+      div.appendChild(t);
+    } else if (part.type === 'code') {
+      const lang = part.lang || 'plaintext';
+      const cb = document.createElement('div');
+      cb.className = 'code-block';
+
+      // highlight
+      let highlighted = '';
+      try {
+        if (hljs.getLanguage(lang)) {
+          highlighted = hljs.highlight(part.content, { language: lang }).value;
+        } else {
+          highlighted = hljs.highlightAuto(part.content).value;
+        }
+      } catch { highlighted = esc(part.content); }
+
+      cb.innerHTML = `
+        <div class="code-header">
+          <span class="code-lang">${esc(lang)}</span>
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+          <pre><code class="hljs language-${esc(lang)}">${highlighted}</code></pre>
+        </div>`;
+      div.appendChild(cb);
+    }
+  });
+
+  agentOutput.appendChild(div);
+  agentOutput.scrollTop = agentOutput.scrollHeight;
+}
+
+function splitCodeBlocks(text) {
+  const parts = [];
+  const regex = /```(\w*)\n?([\s\S]*?)```/g;
+  let last = 0, m;
+  while ((m = regex.exec(text)) !== null) {
+    if (m.index > last) parts.push({ type: 'text', content: text.slice(last, m.index) });
+    parts.push({ type: 'code', lang: m[1] || 'plaintext', content: m[2] });
+    last = regex.lastIndex;
+  }
+  if (last < text.length) parts.push({ type: 'text', content: text.slice(last) });
+  return parts;
+}
+
+function createThinkingBlock() {
+  hideEmpty();
+  const div = document.createElement('div');
+  div.className = 'msg';
+  div.innerHTML = `
+    <div class="msg-header">
+      <div class="msg-status-dot" style="background:var(--accent)"></div>
+      <span class="msg-node">thinking</span>
+    </div>
+    <div class="thinking-block">
+      <div class="thinking-header">
+        <div class="thinking-header-left">
+          <div class="thinking-pulse"></div>
+          <span>Agent is thinking…</span>
+        </div>
+        <button class="thinking-toggle" onclick="toggleThinking(this)">hide</button>
+      </div>
+      <div class="thinking-text"></div>
+    </div>`;
+  agentOutput.appendChild(div);
+  thinkingEl = div;
+  agentOutput.scrollTop = agentOutput.scrollHeight;
+}
+
+function toggleThinking(btn) {
+  const body = btn.closest('.thinking-block').querySelector('.thinking-text');
+  const hidden = body.style.display === 'none';
+  body.style.display = hidden ? '' : 'none';
+  btn.textContent = hidden ? 'hide' : 'show';
+}
+
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+// ── Progress ─────────────────────────────────────────────────────────────
+function bumpProgress(node, status, msg) {
+  const m = msg || '';
+  if (node === 'agent' && status === 'running' && m.includes('Thinking'))    setProgress(Math.min(progressPct + 2, 88));
+  if (node === 'agent' && status === 'running' && m.includes('Calling'))     setProgress(Math.min(progressPct + 5, 90));
+  if (node === 'agent' && (status === 'complete') && m.startsWith('Wrote ')) setProgress(Math.min(progressPct + 4, 93));
+  if (node === 'agent' && m.includes('no syntax errors'))                    setProgress(Math.min(progressPct + 1, 95));
+  if (node === 'pipeline' && status === 'done')                              setProgress(100);
 }
 
 function setProgress(pct) {
   progressPct = pct;
-  progressBar.style.width = pct + '%';
-  progressPctEl.textContent = pct + '%';
+  $('prog-fill').style.width = pct + '%';
+  $('prog-pct').textContent = pct + '%';
 }
 
 function resetProgress() {
-  filesWritten = 0; lintChecked = 0; opsCount = 0; eventCount = 0;
-  progressPct = 0; thinkingBuf = '';
+  filesWritten = 0; lintCount = 0; eventCount = 0; progressPct = 0; thinkingBuf = ''; thinkingEl = null;
   setProgress(0);
-  filesWrittenEl.innerHTML = '';
-  lintResultsEl.innerHTML = '';
-  opsList.innerHTML = '';
-  logContainer.innerHTML = '';
-  thinkingTextEl.textContent = 'Waiting for agent...';
-  filesWrittenCount.textContent = '0';
-  lintCountEl.textContent = '0 checked';
-  opsCountEl.textContent = '0';
-  eventCountEl.textContent = '0 events';
+  $('s-files').textContent = 0; $('s-lint').textContent = 0; $('s-events').textContent = 0;
+  $('right-event-count').textContent = '0 events';
+  $('prog-label').textContent = 'Working…';
 }
 
-// ── Panel helpers ──────────────────────────────────────────────────────
-function addFileWritten(msg) {
-  filesWritten++;
-  filesWrittenCount.textContent = filesWritten;
-  const el = document.createElement('div');
-  el.className = 'file-row flex items-center gap-2 px-2 py-1 rounded';
-  const isCopy = msg.startsWith('Copied');
-  el.innerHTML = `
-    <svg class="w-3 h-3 ${isCopy ? 'text-accent' : 'text-green'} flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-      ${isCopy
-        ? '<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586"/>'
-        : '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>'
-      }
-    </svg>
-    <span class="font-mono text-[11px] text-text truncate">${escHtml(msg)}</span>`;
-  filesWrittenEl.appendChild(el);
-  filesWrittenEl.scrollTop = filesWrittenEl.scrollHeight;
+// ── Terminal states ───────────────────────────────────────────────────────
+function setLive(on) {
+  const dot = $('live-dot');
+  dot.classList.toggle('idle', !on);
+  dot.classList.toggle('active', on);
+  $('right-title').textContent = on ? 'Agent Output — Live' : 'Agent Output';
 }
 
-function addOp(msg) {
-  opsCount++;
-  opsCountEl.textContent = opsCount;
-  const el = document.createElement('div');
-  el.className = 'log-entry flex items-center gap-2 text-dim py-0.5';
-  el.innerHTML = `<span class="text-accent/60 flex-shrink-0">⟳</span><span class="truncate">${escHtml((msg||'').slice(0,160))}</span>`;
-  opsList.appendChild(el);
-  opsList.scrollTop = opsList.scrollHeight;
-}
-
-function addLintResult(msg, status) {
-  lintChecked++;
-  lintCountEl.textContent = `${lintChecked} checked`;
-  const ok = status === 'ok' || (msg||'').includes('no syntax');
-  const el = document.createElement('div');
-  el.className = 'file-row flex items-start gap-2 px-2 py-1 rounded';
-  el.innerHTML = `
-    <span class="flex-shrink-0 font-mono text-[11px] ${ok ? 'text-green' : 'text-red'}">${ok ? '✓' : '✗'}</span>
-    <span class="font-mono text-[11px] ${ok ? 'text-soft' : 'text-red/80'} break-all">${escHtml((msg||'').slice(0,120))}</span>`;
-  lintResultsEl.appendChild(el);
-  lintResultsEl.scrollTop = lintResultsEl.scrollHeight;
-}
-
-function addLog(node, status, message) {
-  if (!message) return;
-  eventCount++;
-  eventCountEl.textContent = `${eventCount} events`;
-
-  const statusColor = {
-    ok:'text-green', complete:'text-green', done:'text-green', passed:'text-green',
-    warn:'text-amber', warning:'text-amber', stopped:'text-amber',
-    error:'text-red', failed:'text-red',
-    running:'text-accent',
-    heartbeat:'text-dim',
-  }[status] || 'text-dim';
-
-  const statusChar = {
-    ok:'✓', complete:'✓', done:'✓', passed:'✓',
-    warn:'△', warning:'△', stopped:'■',
-    error:'✗', failed:'✗',
-    running:'○', heartbeat:'·',
-  }[status] || '·';
-
-  const time = new Date().toLocaleTimeString('en-US', { hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit' });
-
-  const el = document.createElement('div');
-  el.className = 'log-entry flex items-start gap-2 py-0.5 leading-relaxed';
-  el.innerHTML = `
-    <span class="text-muted flex-shrink-0 w-16 text-right select-none">${time}</span>
-    <span class="${statusColor} flex-shrink-0 w-3">${statusChar}</span>
-    <span class="text-dim flex-shrink-0 w-16 truncate">[${escHtml(node)}]</span>
-    <span class="text-soft break-all">${escHtml((message||'').slice(0,200))}</span>`;
-  logContainer.appendChild(el);
-  logContainer.scrollTop = logContainer.scrollHeight;
-}
-
-// ── Terminal states ────────────────────────────────────────────────────
 function showComplete(zipUrl) {
-  setProgress(100);
-  progressLabel.textContent = 'Done';
-  stepComplete.classList.remove('hidden');
-  btnDownload.href = zipUrl;
-  const opSummary = opsCount > 0 ? ` · ${opsCount} copy/search ops` : '';
-  $('complete-summary').textContent = `${filesWritten} files written · ${lintChecked} lint checks${opSummary}`;
-  const pingEl = document.querySelector('.relative.w-3.h-3 .animate-ping');
-  if (pingEl) pingEl.style.display = 'none';
+  setProgress(100); setLive(false);
+  $('prog-label').textContent = 'Done ✓';
+  $('sec-complete').classList.remove('hidden');
+  $('btn-download').href = zipUrl;
+  $('complete-summary').textContent = `${filesWritten} files written · ${lintCount} lint checks`;
+  resetBtn($('btn-convert'));
+  emitMsg('pipeline', 'done', '🎉 Theme generation complete! Download your ZIP below.');
 }
 
 function showError(msg) {
-  stepError.classList.remove('hidden');
-  errorMsg.textContent = msg;
-  btnConvert.disabled = false;
-  btnConvert.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/></svg> Generate theme`;
+  setLive(false);
+  $('sec-error').classList.remove('hidden');
+  $('error-msg').textContent = msg;
+  resetBtn($('btn-convert'));
+  emitMsg('pipeline', 'error', `Error: ${msg}`);
 }
 
-btnRestart.addEventListener('click', () => location.reload());
-btnRetry.addEventListener('click', () => {
-  stepError.classList.add('hidden');
-  btnConvert.disabled = false;
-  btnConvert.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/></svg> Generate theme`;
-});
-$('clear-thinking').addEventListener('click', () => { thinkingBuf = ''; thinkingTextEl.textContent = ''; });
+function hideError() {
+  $('sec-error').classList.add('hidden');
+}
 
-// ── Utils ──────────────────────────────────────────────────────────────
-function escHtml(str) {
+// ── Utils ────────────────────────────────────────────────────────────────
+function esc(str) {
   return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 </script>

@@ -116,6 +116,10 @@ TOOLS = [
                         "type": "string",
                         "description": "Regex pattern to search for (e.g., 'wp_nav_menu', '\\.hero', 'function.*setup')",
                     },
+                    "context": {
+                        "type": "integer",
+                        "description": "Number of lines before/after each match to include for context. Default: 0.",
+                    },
                 },
                 "required": ["path", "pattern"],
             },
